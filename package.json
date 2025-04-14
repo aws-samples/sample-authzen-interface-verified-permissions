@@ -1,0 +1,51 @@
+{
+  "name": "authzen-interface-verified-permissions",
+  "version": "1.0.0",
+  "license": "MIT-0",
+  "bin": {
+    "authzen-interface-verified-permissions": "bin/authzen-interface-verified-permissions.js"
+  },
+  "scripts": {
+    "watch": "tsc -w",
+    "test": "cd test && vitest",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "cdk:policystore": "cd cdk && cdk deploy AuthZENPolicyStoreStack",
+    "cdk:pdp": "cd cdk && cdk deploy -c policyStoreId=$POLICY_STORE_ID -c tableName=$ENTITIES_TABLE_NAME AuthZENPDPStack",
+    "express": "cd src && ts-node server.ts"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "3.3.1",
+    "@eslint/js": "9.24.0",
+    "@types/aws-lambda": "8.10.149",
+    "@types/express": "4.17.21",
+    "@types/node": "20.1.7",
+    "@typescript-eslint/eslint-plugin": "8.29.1",
+    "@typescript-eslint/parser": "8.29.1",
+    "aws-cdk": "2.1007.0",
+    "aws-cdk-lib": "2.189.0",
+    "cdk-nag": "2.35.67",
+    "constructs": "10.4.2",
+    "eslint": "9.24.0",
+    "eslint-config-prettier": "10.1.2",
+    "eslint-plugin-prettier": "5.2.6",
+    "express": "4.21.2",
+    "prettier": "3.5.3",
+    "ts-node": "10.9.2",
+    "typescript": "5.8.3",
+    "vitest": "3.1.1",
+    "zod-to-json-schema": "3.24.5"
+  },
+  "dependencies": {
+    "@aws-lambda-powertools/logger": "2.18.0",
+    "@aws-lambda-powertools/tracer": "2.18.0",
+    "@aws-sdk/client-api-gateway": "3.787.0",
+    "@aws-sdk/client-dynamodb": "3.788.0",
+    "@aws-sdk/client-secrets-manager": "3.787.0",
+    "@aws-sdk/client-verifiedpermissions": "3.788.0",
+    "@aws-sdk/lib-dynamodb": "3.788.0",
+    "@cedar-policy/cedar-wasm": "=4.3.3",
+    "source-map-support": "0.5.21",
+    "zod": "3.24.2"
+  }
+}

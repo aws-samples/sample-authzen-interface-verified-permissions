@@ -1,0 +1,142 @@
+[
+  {
+    "uid": {
+      "type": "identity",
+      "id": "CiRmZDA2MTRkMy1jMzlhLTQ3ODEtYjdiZC04Yjk2ZjVhNTEwMGQSBWxvY2Fs"
+    },
+    "attrs": {
+      "id": "richard_roe@example.com",
+      "name": "Richard Roe",
+      "email": "richard_roe@example.com",
+      "roles": ["admin", "evil_genius"],
+      "picture": "https://www.example.com/img/Richard%20Roe.jpg"
+    },
+    "parents": []
+  },
+  {
+    "uid": {
+      "type": "identity",
+      "id": "CiRmZDM2MTRkMy1jMzlhLTQ3ODEtYjdiZC04Yjk2ZjVhNTEwMGQSBWxvY2Fs"
+    },
+    "attrs": {
+      "id": "jane_doe@example.com",
+      "name": "Jane Doe",
+      "email": "jane_doe@example.com",
+      "roles": ["viewer"],
+      "picture": "https://www.example.com/img/Jane%20Doe.jpg"
+    },
+    "parents": []
+  },
+  {
+    "uid": {
+      "type": "identity",
+      "id": "CiRmZDE2MTRkMy1jMzlhLTQ3ODEtYjdiZC04Yjk2ZjVhNTEwMGQSBWxvY2Fs"
+    },
+    "attrs": {
+      "id": "john_doe@example.com",
+      "name": "John Doe",
+      "email": "john_doe@example.com",
+      "roles": ["editor"],
+      "picture": "https://www.example.com/img/John%20Doe.jpg"
+    },
+    "parents": []
+  },
+  {
+    "uid": {
+      "type": "identity",
+      "id": "CiRmZDI2MTRkMy1jMzlhLTQ3ODEtYjdiZC04Yjk2ZjVhNTEwMGQSBWxvY2Fs"
+    },
+    "attrs": {
+      "id": "nikki_wolf@example.com",
+      "name": "Nikki Wolf",
+      "email": "nikki_wolf@example.com",
+      "roles": ["editor"],
+      "picture": "https://www.example.com/img/Nikki%20Wolf.jpg"
+    },
+    "parents": []
+  },
+  {
+    "uid": {
+      "type": "identity",
+      "id": "CiRmZDQ2MTRkMy1jMzlhLTQ3ODEtYjdiZC04Yjk2ZjVhNTEwMGQSBWxvY2Fs"
+    },
+    "attrs": {
+      "id": "jorge_souza@example.com",
+      "name": "Jorge Souza",
+      "email": "jorge_souza@example.com",
+      "roles": ["viewer"],
+      "picture": "https://www.example.com/img/Jorge%20Souza.jpg"
+    },
+    "parents": []
+  },
+  {
+    "uid": {
+      "type": "user",
+      "id": "CiRmZDA2MTRkMy1jMzlhLTQ3ODEtYjdiZC04Yjk2ZjVhNTEwMGQSBWxvY2Fs"
+    },
+    "attrs": {
+      "id": "richard_roe@example.com",
+      "name": "Richard Roe",
+      "email": "richard_roe@example.com",
+      "roles": ["admin", "evil_genius"],
+      "picture": "https://www.example.com/img/Richard%20Roe.jpg"
+    },
+    "parents": []
+  },
+  {
+    "uid": {
+      "type": "user",
+      "id": "CiRmZDM2MTRkMy1jMzlhLTQ3ODEtYjdiZC04Yjk2ZjVhNTEwMGQSBWxvY2Fs"
+    },
+    "attrs": {
+      "id": "jane_doe@example.com",
+      "name": "Jane Doe",
+      "email": "jane_doe@example.com",
+      "roles": ["viewer"],
+      "picture": "https://www.example.com/img/Jane%20Doe.jpg"
+    },
+    "parents": []
+  },
+  {
+    "uid": {
+      "type": "user",
+      "id": "CiRmZDE2MTRkMy1jMzlhLTQ3ODEtYjdiZC04Yjk2ZjVhNTEwMGQSBWxvY2Fs"
+    },
+    "attrs": {
+      "id": "john_doe@example.com",
+      "name": "John Doe",
+      "email": "john_doe@example.com",
+      "roles": ["editor"],
+      "picture": "https://www.example.com/img/John%20Doe.jpg"
+    },
+    "parents": []
+  },
+  {
+    "uid": {
+      "type": "user",
+      "id": "CiRmZDI2MTRkMy1jMzlhLTQ3ODEtYjdiZC04Yjk2ZjVhNTEwMGQSBWxvY2Fs"
+    },
+    "attrs": {
+      "id": "nikki_wolf@example.com",
+      "name": "Nikki Wolf",
+      "email": "nikki_wolf@example.com",
+      "roles": ["editor"],
+      "picture": "https://www.example.com/img/Nikki%20Wolf.jpg"
+    },
+    "parents": []
+  },
+  {
+    "uid": {
+      "type": "user",
+      "id": "CiRmZDQ2MTRkMy1jMzlhLTQ3ODEtYjdiZC04Yjk2ZjVhNTEwMGQSBWxvY2Fs"
+    },
+    "attrs": {
+      "id": "jorge_souza@example.com",
+      "name": "Jorge Souza",
+      "email": "jorge_souza@example.com",
+      "roles": ["viewer"],
+      "picture": "https://www.example.com/img/Jorge%20Souza.jpg"
+    },
+    "parents": []
+  }
+]

@@ -1,0 +1,33 @@
+entity user {
+  id: String,
+  name: String,
+  email: String,
+  roles: Set<String>,
+  picture: String
+};
+entity identity {
+  id: String,
+  name: String,
+  email: String,
+  roles: Set<String>,
+  picture: String
+};
+entity route;
+entity todo {
+  ownerID: String
+};
+action "GET", "POST", "PUT", "DELETE" appliesTo {
+  principal: [identity],
+  resource: [route],
+  context: {}
+};
+action "can_read_user" appliesTo {
+  principal: [user],
+  resource: [user],
+  context: {}
+};
+action "can_read_todos", "can_create_todo", "can_update_todo", "can_delete_todo" appliesTo {
+  principal: [user],
+  resource: [todo],
+  context: {}
+};

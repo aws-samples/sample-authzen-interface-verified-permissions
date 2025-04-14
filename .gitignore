@@ -1,0 +1,9 @@
+node_modules
+cdk/**/**.js
+cdk/**/**.d.ts
+cdk/cdk.out/
+cdk/cdk-outputs.json
+src/**/*.js
+test/**/*.js
+**/.env
+**/.DS_Store

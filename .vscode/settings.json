@@ -1,0 +1,18 @@
+{
+  "[cedar]": {
+    "editor.defaultFormatter": "cedar-policy.vscode-cedar"
+  },
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit"
+  },
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.expand": false,
+  "explorer.fileNesting.patterns": {
+    "package.json": "package-lock.json",
+    "cdk.json": "cdk.context.json, cdk-outputs.json",
+    "tsconfig.json": "eslint.*, .eslint*, .prettier*, vitest.config.ts",
+    "cedarschema": "cedarschema.json"
+  }
+}

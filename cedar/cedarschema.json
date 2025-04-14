@@ -1,0 +1,78 @@
+{
+  "": {
+    "entityTypes": {
+      "route": {},
+      "user": {
+        "shape": {
+          "type": "Record",
+          "attributes": {
+            "email": { "type": "String" },
+            "id": { "type": "String" },
+            "name": { "type": "String" },
+            "picture": { "type": "String" },
+            "roles": { "type": "Set", "element": { "type": "String" } }
+          }
+        }
+      },
+      "identity": {
+        "shape": {
+          "type": "Record",
+          "attributes": {
+            "email": { "type": "String" },
+            "id": { "type": "String" },
+            "name": { "type": "String" },
+            "picture": { "type": "String" },
+            "roles": { "type": "Set", "element": { "type": "String" } }
+          }
+        }
+      },
+      "todo": {
+        "shape": {
+          "type": "Record",
+          "attributes": { "ownerID": { "type": "String" } }
+        }
+      }
+    },
+    "actions": {
+      "can_delete_todo": {
+        "appliesTo": { "resourceTypes": ["todo"], "principalTypes": ["user"] }
+      },
+      "POST": {
+        "appliesTo": {
+          "resourceTypes": ["route"],
+          "principalTypes": ["identity"]
+        }
+      },
+      "can_update_todo": {
+        "appliesTo": { "resourceTypes": ["todo"], "principalTypes": ["user"] }
+      },
+      "can_read_todos": {
+        "appliesTo": { "resourceTypes": ["todo"], "principalTypes": ["user"] }
+      },
+      "PUT": {
+        "appliesTo": {
+          "resourceTypes": ["route"],
+          "principalTypes": ["identity"]
+        }
+      },
+      "can_create_todo": {
+        "appliesTo": { "resourceTypes": ["todo"], "principalTypes": ["user"] }
+      },
+      "DELETE": {
+        "appliesTo": {
+          "resourceTypes": ["route"],
+          "principalTypes": ["identity"]
+        }
+      },
+      "GET": {
+        "appliesTo": {
+          "resourceTypes": ["route"],
+          "principalTypes": ["identity"]
+        }
+      },
+      "can_read_user": {
+        "appliesTo": { "resourceTypes": ["user"], "principalTypes": ["user"] }
+      }
+    }
+  }
+}
