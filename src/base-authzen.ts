@@ -1,7 +1,7 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
 import * as authzen from './authzen';
-import { EntityJson } from '@cedar-policy/cedar-wasm';
+import { EntityJson, TypeAndId } from '@cedar-policy/cedar-wasm';
 import { ICedarPIPProvider, CedarPIP } from './pip';
 
 export abstract class CedarPIPAuthZENProxy implements ICedarPIPProvider {
@@ -13,32 +13,33 @@ export abstract class CedarPIPAuthZENProxy implements ICedarPIPProvider {
 
   async determineEntities(entities: authzen.Entity[]): Promise<EntityJson[]> {
     const determined: EntityJson[] = [];
+    const undetermined: TypeAndId[] = [];
 
-    // TODO: doesn't dedup EntityJson inside determined
+    entities.map((entity) => {
+      if (entity.properties) {
+        // create an EntityJson from incoming properties
+        determined.push({
+          uid: {
+            type: entity.type,
+            id: entity.id,
+          },
+          attrs: entity.properties,
+          parents: [],
+        } as EntityJson);
+      } else {
+        const { type, id } = entity;
+        undetermined.push({ type, id });
+      }
+    });
 
-    await Promise.all(
-      entities.map(async (entity) => {
-        if (entity.properties) {
-          // create an EntityJson from incoming properties
-          determined.push({
-            uid: {
-              type: entity.type,
-              id: entity.id,
-            },
-            attrs: entity.properties,
-            parents: [],
-          } as EntityJson);
-        } else {
-          if (this.pip) {
-            // fetch EntityJson from PIP
-            const found = await this.pip.findEntities([entity]);
-            found.forEach((e) => {
-              determined.push(e);
-            });
-          }
-        }
-      }),
-    );
+    if (this.pip && undetermined.length > 0) {
+      // fetch EntityJson from PIP
+      const found = await this.pip.findEntities(undetermined);
+      found.forEach((e) => {
+        determined.push(e);
+      });
+    }
+
     return determined;
   }
 }

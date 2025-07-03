@@ -1,10 +1,8 @@
 {
   "name": "authzen-interface-verified-permissions",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "license": "MIT-0",
-  "bin": {
-    "authzen-interface-verified-permissions": "bin/authzen-interface-verified-permissions.js"
-  },
+  "type": "module",
   "scripts": {
     "watch": "tsc -w",
     "test": "cd test && vitest",
@@ -44,7 +42,7 @@
     "@aws-sdk/client-secrets-manager": "3.787.0",
     "@aws-sdk/client-verifiedpermissions": "3.788.0",
     "@aws-sdk/lib-dynamodb": "3.788.0",
-    "@cedar-policy/cedar-wasm": "=4.3.3",
+    "@cedar-policy/cedar-wasm": "=4.4.0",
     "source-map-support": "0.5.21",
     "zod": "3.24.2"
   }

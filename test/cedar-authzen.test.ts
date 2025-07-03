@@ -1,8 +1,7 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const cedar = require('@cedar-policy/cedar-wasm/nodejs');
-import { DetailedError, PolicySet } from '@cedar-policy/cedar-wasm';
+import * as cedar from '@cedar-policy/cedar-wasm/nodejs';
+import { DetailedError, EntityJson, PolicySet } from '@cedar-policy/cedar-wasm';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { CedarAuthZENProxy } from '../src/cedar-authzen';
@@ -18,21 +17,26 @@ import { CedarInMemoryPIP } from '../src/pip';
 import { ReasonObject } from '../src/authzen';
 
 suite('Cedar WASM', async () => {
-  test('SDK version: 4.3.3', () => {
-    expect(cedar.getCedarVersion()).toBe('4.3.3');
+  test('SDK version: 4.4.0', () => {
+    expect(cedar.getCedarVersion()).toBe('4.4.0');
   });
 });
 
 suite('Cedar Interop', () => {
   let authzenProxy: CedarAuthZENProxy;
-  let cedarSchema: string;
+  let schema: string;
   let policies: PolicySet;
+  let entities: EntityJson[];
 
   beforeAll(() => {
     const SCHEMA_FILE = path.resolve(BASE_PATH, 'cedarschema');
-    cedarSchema = fs.readFileSync(SCHEMA_FILE, 'utf8');
+    schema = fs.readFileSync(SCHEMA_FILE, 'utf8');
 
     policies = getInteropCedarPolicies();
+
+    const ENTITIES_FILE = path.resolve(BASE_PATH, 'cedarentities.json');
+    const entitiesJson: string = fs.readFileSync(ENTITIES_FILE, 'utf-8');
+    entities = JSON.parse(entitiesJson);
 
     authzenProxy = new CedarAuthZENProxy();
     authzenProxy.setPolicies(policies);
@@ -41,17 +45,41 @@ suite('Cedar Interop', () => {
     authzenProxy.setPip(pip);
   });
 
-  test('validate Schema and PolicySet', () => {
+  test('parse Schema', () => {
+    let errorMessage;
+    const answer = cedar.checkParseSchema(schema);
+    if (answer.type == 'failure') {
+      errorMessage = `${answer.errors.map((err: DetailedError) => `- ${err.message}`).join('\n')}`;
+    }
+    expect(answer.type, errorMessage).toBe('success');
+  });
+
+  test('parse Entities', () => {
+    let errorMessage;
+    const answer = cedar.checkParseEntities({
+      schema: schema,
+      entities: entities,
+    });
+    if (answer.type == 'failure') {
+      errorMessage = `${answer.errors.map((err: DetailedError) => `- ${err.message}`).join('\n')}`;
+    }
+    expect(answer.type, errorMessage).toBe('success');
+  });
+
+  test('validate PolicySet', () => {
     let errorMessage;
     const answer = cedar.validate({
       validationSettings: { mode: 'strict' },
-      schema: cedarSchema,
+      schema: schema,
       policies: policies,
     });
     if (answer.type == 'failure') {
       errorMessage = `${answer.errors.map((err: DetailedError) => `- ${err.message}`).join('\n')}`;
     }
     expect(answer.type, errorMessage).toBe('success');
+    if (answer.type == 'success') {
+      expect(answer.validationErrors).toHaveLength(0);
+    }
   });
 
   test.each(gatewayDecisions.evaluation || [])(

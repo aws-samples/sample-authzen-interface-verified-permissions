@@ -1,8 +1,7 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
 import * as authzen from './authzen';
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const cedar = require('@cedar-policy/cedar-wasm/nodejs');
+import * as cedar from '@cedar-policy/cedar-wasm/nodejs';
 import {
   AuthorizationAnswer,
   PolicySet,
@@ -77,16 +76,16 @@ export class CedarAuthZENProxy
   evaluations(
     request: authzen.AccessEvaluationsRequest,
   ): Promise<authzen.AccessEvaluationsResponse> {
-    throw new Error('AuthZen evaluations not implemented.');
+    throw new Error('AuthZEN evaluations not implemented.');
   }
   subjectsearch(
     request: authzen.SubjectSearchRequest,
   ): Promise<authzen.SearchResponse> {
-    throw new Error('AuthZen subjectsearch not implemented.');
+    throw new Error('AuthZEN subjectsearch not implemented.');
   }
   resourcesearch(
     request: authzen.ResourceSearchRequest,
   ): Promise<authzen.SearchResponse> {
-    throw new Error('AuthZen resourcesearch not implemented.');
+    throw new Error('AuthZEN resourcesearch not implemented.');
   }
 }
