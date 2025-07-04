@@ -2,13 +2,16 @@
 // SPDX-License-Identifier: MIT-0
 import * as cdk from 'aws-cdk-lib';
 import * as verifiedpermissions from 'aws-cdk-lib/aws-verifiedpermissions';
-import { EntityJson, EntityUidJson } from '@cedar-policy/cedar-wasm';
+import { EntityJson } from '@cedar-policy/cedar-wasm';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as cr from 'aws-cdk-lib/custom-resources';
 import { Construct } from 'constructs';
 import { NagSuppressions } from 'cdk-nag';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import { CedarDynamoDBPIP } from '../../src/pip';
+import { PutItemInput } from '@aws-sdk/client-dynamodb';
+
 export interface AuthZENPolicyStoreStackProps extends cdk.StackProps {
   basePath: string;
 }
@@ -77,7 +80,7 @@ export class AuthZENPolicyStoreStack extends cdk.Stack {
     // https://authzen-interop.net/docs/scenarios/todo-1.1/
     // https://authzen-interop.net/docs/scenarios/api-gateway/
     const ENTITIES_FILE = path.resolve(BASE_PATH, 'cedarentities.json');
-    const entities: Array<EntityJson> = JSON.parse(
+    const entities: EntityJson[] = JSON.parse(
       fs.readFileSync(ENTITIES_FILE, 'utf-8'),
     );
 
@@ -85,6 +88,10 @@ export class AuthZENPolicyStoreStack extends cdk.Stack {
     const table = new dynamodb.Table(entitiesScope, 'CedarEntitiesTable', {
       partitionKey: {
         name: 'PK',
+        type: dynamodb.AttributeType.STRING,
+      },
+      sortKey: {
+        name: 'SK',
         type: dynamodb.AttributeType.STRING,
       },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
@@ -101,21 +108,11 @@ export class AuthZENPolicyStoreStack extends cdk.Stack {
       true,
     );
 
-    const makePK = (identifier: EntityUidJson): string => {
-      const { type, id } =
-        '__entity' in identifier ? identifier.__entity : identifier;
-
-      return `${type}::"${id.replace(/"/g, '\\"')}"`;
-    };
-
     // Create batch write requests for each entity
     const items = entities.map((entity) => ({
       PutRequest: {
-        Item: {
-          PK: { S: makePK(entity.uid) },
-          entity: { S: JSON.stringify(entity) },
-        },
-      },
+        Item: CedarDynamoDBPIP.constructDynamoDBItem(entity),
+      } as PutItemInput,
     }));
 
     // Split items into chunks of 25 (DynamoDB batch write limit)
@@ -163,7 +160,7 @@ export class AuthZENPolicyStoreStack extends cdk.Stack {
             ],
           },
         ],
-        true,
+        false,
       );
     });
 

@@ -13,20 +13,27 @@ suite('Cedar InMemory PIP', async () => {
     pip = getInteropInMemoryCedarPIP();
   });
 
-  test('Richard Roe', async () => {
-    const pid = 'CiRmZDA2MTRkMy1jMzlhLTQ3ODEtYjdiZC04Yjk2ZjVhNTEwMGQSBWxvY2Fs';
+  test('Richard Roe & John Doe', async () => {
+    const pid0 = 'CiRmZDA2MTRkMy1jMzlhLTQ3ODEtYjdiZC04Yjk2ZjVhNTEwMGQSBWxvY2Fs';
+    const pid1 = 'CiRmZDE2MTRkMy1jMzlhLTQ3ODEtYjdiZC04Yjk2ZjVhNTEwMGQSBWxvY2Fs';
 
-    const entities = await pip.findEntities([{ type: 'identity', id: pid }]);
+    const entities = await pip.findEntities([
+      { type: 'identity', id: pid0 },
+      { type: 'identity', id: pid1 },
+    ]);
     if (entities) {
-      expect(entities.length).toBe(1);
+      expect(entities.length).toBe(2);
       if (entities[0]) {
-        expect((entities[0]?.uid as TypeAndId).id).toBe(pid);
+        expect((entities[0]?.uid as TypeAndId).id).toBe(pid0);
+      }
+      if (entities[1]) {
+        expect((entities[1]?.uid as TypeAndId).id).toBe(pid1);
       }
     }
   });
 
   test('also find parents', async () => {
-    const pipEntities: Array<EntityJson> = [];
+    const pipEntities: EntityJson[] = [];
     pipEntities.push({
       uid: { type: 'identity', id: 'ID0' },
       attrs: {},
@@ -64,14 +71,21 @@ suite('Cedar DynamoDB PIP', async () => {
     pip = getInteropDynamoDBCedarPIP();
   });
 
-  test('Richard Roe', async () => {
-    const pid = 'CiRmZDA2MTRkMy1jMzlhLTQ3ODEtYjdiZC04Yjk2ZjVhNTEwMGQSBWxvY2Fs';
+  test('Richard Roe & John Doe', async () => {
+    const pid0 = 'CiRmZDA2MTRkMy1jMzlhLTQ3ODEtYjdiZC04Yjk2ZjVhNTEwMGQSBWxvY2Fs';
+    const pid1 = 'CiRmZDE2MTRkMy1jMzlhLTQ3ODEtYjdiZC04Yjk2ZjVhNTEwMGQSBWxvY2Fs';
 
-    const entities = await pip.findEntities([{ type: 'identity', id: pid }]);
+    const entities = await pip.findEntities([
+      { type: 'identity', id: pid0 },
+      { type: 'identity', id: pid1 },
+    ]);
     if (entities) {
-      expect(entities.length).toBe(1);
+      expect(entities.length).toBe(2);
       if (entities[0]) {
-        expect((entities[0]?.uid as TypeAndId).id).toBe(pid);
+        expect((entities[0]?.uid as TypeAndId).id).toBe(pid0);
+      }
+      if (entities[1]) {
+        expect((entities[1]?.uid as TypeAndId).id).toBe(pid1);
       }
     }
   });
