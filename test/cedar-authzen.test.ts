@@ -98,6 +98,16 @@ suite('Cedar Interop Todo (1.0 Draft 02)', () => {
     },
   );
 
+  test.each(backendDecisions.evaluations || [])(
+    'Testing evaluations',
+    async ({ request, expected }) => {
+      const response = await authzenProxy.evaluations(request);
+      expected.forEach((evaluation, index) => {
+        expect(response.evaluations[index].decision).toBe(evaluation.decision);
+      });
+    },
+  );
+
   test('evaluation uses subject properties', async () => {
     const testProxy = new CedarAuthZENProxy();
     testProxy.setPolicies(getInteropCedarPolicies(TODO_BASE_PATH));

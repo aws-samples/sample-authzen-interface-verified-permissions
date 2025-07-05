@@ -8,6 +8,7 @@ import {
   AuthorizationCall,
   TypeAndId,
   Context,
+  EntityJson,
 } from '@cedar-policy/cedar-wasm';
 import { CedarPIPAuthZENProxy } from './base-authzen';
 
@@ -26,6 +27,32 @@ export class CedarAuthZENProxy
       type: entity.type,
       id: entity.id,
     };
+  }
+
+  transferAnswer(
+    answer: AuthorizationAnswer,
+    response: authzen.AccessEvaluationResponse,
+  ): void {
+    if (answer.type == 'success') {
+      if (answer.response.decision == 'allow') {
+        response.decision = true;
+        if (answer.response.diagnostics.reason) {
+          const reasons: Record<string, string> = {};
+          for (
+            let index = 0;
+            index < answer.response.diagnostics.reason.length;
+            index++
+          ) {
+            reasons[`${index}`] = answer.response.diagnostics.reason[index];
+          }
+          response.context = {
+            reason_admin: reasons,
+          };
+        }
+      } else {
+        //
+      }
+    }
   }
 
   async evaluation(
@@ -49,34 +76,63 @@ export class CedarAuthZENProxy
       ]),
     };
     const answer: AuthorizationAnswer = cedar.isAuthorized(call);
-
-    if (answer.type == 'success') {
-      if (answer.response.decision == 'allow') {
-        response.decision = true;
-        if (answer.response.diagnostics.reason) {
-          const reasons: Record<string, string> = {};
-          for (
-            let index = 0;
-            index < answer.response.diagnostics.reason.length;
-            index++
-          ) {
-            reasons[`${index}`] = answer.response.diagnostics.reason[index];
-          }
-          response.context = {
-            reason_admin: reasons,
-          };
-        }
-      } else {
-        //
-      }
-    }
+    this.transferAnswer(answer, response);
 
     return response;
   }
-  evaluations(
+  async evaluations(
     request: authzen.AccessEvaluationsRequest,
   ): Promise<authzen.AccessEvaluationsResponse> {
-    throw new Error('AuthZEN evaluations not implemented.');
+    try {
+      const response: authzen.AccessEvaluationsResponse = {
+        evaluations: [],
+      };
+      const commandEntities: EntityJson[] = await this.extractEntities(request);
+
+      for (const evaluation of request.evaluations) {
+        const call: AuthorizationCall = {
+          principal: this.convert(
+            evaluation.subject || request.subject || { type: '', id: '' },
+          ),
+          action: {
+            type: 'Action',
+            id: evaluation.action?.name || request.action?.name || '',
+          },
+          resource: this.convert(
+            evaluation.resource || request.resource || { type: '', id: '' },
+          ),
+          context: (request.context as Context) || {},
+          policies: this.policies,
+          entities: commandEntities,
+        };
+        const answer: AuthorizationAnswer = cedar.isAuthorized(call);
+
+        const tmpResponse: authzen.AccessEvaluationResponse = {
+          decision: false,
+        };
+        this.transferAnswer(answer, tmpResponse);
+        response.evaluations.push(tmpResponse);
+
+        if (answer.type == 'success') {
+          if (
+            request.options?.evaluation_semantics ===
+              authzen.DENY_ON_FIRST_DENY &&
+            answer.response.decision == 'deny'
+          ) {
+            break;
+          } else if (
+            request.options?.evaluation_semantics ===
+              authzen.PERMIT_ON_FIRST_PERMIT &&
+            answer.response.decision == 'allow'
+          ) {
+            break;
+          }
+        }
+      }
+      return response;
+    } catch (error) {
+      throw new Error('Failed to perform AuthZEN evaluations');
+    }
   }
   subjectsearch(
     request: authzen.SubjectSearchRequest,

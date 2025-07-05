@@ -42,4 +42,29 @@ export abstract class CedarPIPAuthZENProxy implements ICedarPIPProvider {
 
     return determined;
   }
+
+  async extractEntities(
+    request: authzen.AccessEvaluationsRequest,
+  ): Promise<EntityJson[]> {
+    const extracted: EntityJson[] = [];
+    if (request.subject) {
+      extracted.push(...(await this.determineEntities([request.subject])));
+    }
+    if (request.resource) {
+      extracted.push(...(await this.determineEntities([request.resource])));
+    }
+
+    for (const evaluation of request.evaluations) {
+      if (evaluation.subject) {
+        extracted.push(...(await this.determineEntities([evaluation.subject])));
+      }
+      if (evaluation.resource) {
+        extracted.push(
+          ...(await this.determineEntities([evaluation.resource])),
+        );
+      }
+    }
+
+    return extracted;
+  }
 }

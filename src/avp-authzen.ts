@@ -123,7 +123,6 @@ export class VerifiedPermissionsAuthZENProxy
     request: authzen.AccessEvaluationsRequest,
   ): Promise<authzen.AccessEvaluationsResponse> {
     // https://docs.aws.amazon.com/verifiedpermissions/latest/apireference/API_BatchIsAuthorized.html
-    const commandEntities: EntityJson[] = [];
     try {
       const response: authzen.AccessEvaluationsResponse = {
         evaluations: [],
@@ -137,28 +136,9 @@ export class VerifiedPermissionsAuthZENProxy
         };
       }
 
-      if (request.subject) {
-        commandEntities.push(
-          ...(await this.determineEntities([request.subject])),
-        );
-      }
-      if (request.resource) {
-        commandEntities.push(
-          ...(await this.determineEntities([request.resource])),
-        );
-      }
+      const commandEntities: EntityJson[] = await this.extractEntities(request);
 
       for (const evaluation of request.evaluations) {
-        if (evaluation.subject) {
-          commandEntities.push(
-            ...(await this.determineEntities([evaluation.subject])),
-          );
-        }
-        if (evaluation.resource) {
-          commandEntities.push(
-            ...(await this.determineEntities([evaluation.resource])),
-          );
-        }
         requests.push({
           principal: this.convert(
             evaluation.subject || request.subject || { type: '', id: '' },
