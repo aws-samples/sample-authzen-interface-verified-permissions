@@ -5,9 +5,9 @@ import * as fs from 'node:fs';
 import * as authzen from '../src/authzen';
 import { CedarDynamoDBPIP, CedarInMemoryPIP } from '../src/pip';
 // https://github.com/openid/authzen/blob/main/interop/authzen-api-gateways/test-harness/test/decisions.json
-import rawGatewayDecisions from './gateway-decisions.json';
+import rawGatewayDecisions from './todo-app/gateway-decisions.json';
 // https://github.com/openid/authzen/blob/main/interop/authzen-todo-backend/test/decisions-authorization-api-1_0-02.json
-import rawBackendDecisions from './backend-decisions.json';
+import rawBackendDecisions from './todo-app/backend-decisions.json';
 import { VerifiedPermissionsClient } from '@aws-sdk/client-verifiedpermissions';
 import { VerifiedPermissionsAuthZENProxy } from '../src/avp-authzen';
 import {
@@ -32,10 +32,11 @@ type Decisions = {
 export const gatewayDecisions = rawGatewayDecisions as Decisions;
 export const backendDecisions = rawBackendDecisions as Decisions;
 
-export const BASE_PATH = path.resolve(__dirname, '..', 'cedar');
-export const getInteropInMemoryCedarPIP = (): CedarInMemoryPIP => {
+export const getInteropInMemoryCedarPIP = (
+  basePath: string,
+): CedarInMemoryPIP => {
   const entitiesJson: string = fs.readFileSync(
-    path.join(BASE_PATH, 'cedarentities.json'),
+    path.join(basePath, 'cedarentities.json'),
     'utf-8',
   );
   const entities: Array<EntityJson> = JSON.parse(entitiesJson);
@@ -46,20 +47,21 @@ export const getInteropInMemoryCedarPIP = (): CedarInMemoryPIP => {
   return pip;
 };
 
-const ENTITIES_TABLE_NAME = process.env['ENTITIES_TABLE_NAME'] as string;
-export const getInteropDynamoDBCedarPIP = (): CedarDynamoDBPIP => {
+export const getInteropDynamoDBCedarPIP = (
+  tableName: string,
+): CedarDynamoDBPIP => {
   const client = new DynamoDBClient({});
-  const pip = new CedarDynamoDBPIP(client, ENTITIES_TABLE_NAME);
+  const pip = new CedarDynamoDBPIP(client, tableName);
 
   return pip;
 };
 
-export const getInteropCedarPolicies = (): PolicySet => {
+export const getInteropCedarPolicies = (basePath: string): PolicySet => {
   const staticPolicies: Record<PolicyId, Policy> = {};
-  const files = fs.readdirSync(BASE_PATH);
+  const files = fs.readdirSync(basePath);
   for (const file of files) {
     if (path.extname(file) === '.cedar') {
-      const filePath = path.join(BASE_PATH, file);
+      const filePath = path.join(basePath, file);
 
       const content = fs.readFileSync(filePath, 'utf8');
       staticPolicies[file] = content;

@@ -1,16 +1,18 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
+import * as path from 'node:path';
 import { CedarDynamoDBPIP, CedarInMemoryPIP } from '../src/pip';
 import { EntityJson, TypeAndId } from '@cedar-policy/cedar-wasm';
 import { getInteropDynamoDBCedarPIP, getInteropInMemoryCedarPIP } from './util';
 import { expect, test, beforeAll, suite } from 'vitest';
 
 // https://github.com/openid/authzen/blob/main/interop/authzen-api-gateways/test-harness/test/decisions.json
-suite('Cedar InMemory PIP', async () => {
+suite('Cedar InMemory PIP Todo (1.0 Draft 02)', async () => {
+  const TODO_BASE_PATH = path.resolve(__dirname, '..', 'cedar', 'todo-app');
   let pip: CedarInMemoryPIP;
 
   beforeAll(async () => {
-    pip = getInteropInMemoryCedarPIP();
+    pip = getInteropInMemoryCedarPIP(TODO_BASE_PATH);
   });
 
   test('Richard Roe & John Doe', async () => {
@@ -64,11 +66,12 @@ suite('Cedar InMemory PIP', async () => {
   });
 });
 
-suite('Cedar DynamoDB PIP', async () => {
+suite('Cedar DynamoDB PIP Todo (1.0 Draft 02)', async () => {
   let pip: CedarDynamoDBPIP;
 
   beforeAll(async () => {
-    pip = getInteropDynamoDBCedarPIP();
+    const ENTITIES_TABLE_NAME = process.env['ENTITIES_TABLE_NAME'] as string;
+    pip = getInteropDynamoDBCedarPIP(ENTITIES_TABLE_NAME);
   });
 
   test('Richard Roe & John Doe', async () => {

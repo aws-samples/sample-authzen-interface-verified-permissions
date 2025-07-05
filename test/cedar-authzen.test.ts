@@ -8,7 +8,6 @@ import { CedarAuthZENProxy } from '../src/cedar-authzen';
 import {
   gatewayDecisions,
   getInteropInMemoryCedarPIP,
-  BASE_PATH,
   getInteropCedarPolicies,
   backendDecisions,
 } from './util';
@@ -22,26 +21,27 @@ suite('Cedar WASM', async () => {
   });
 });
 
-suite('Cedar Interop', () => {
+suite('Cedar Interop Todo (1.0 Draft 02)', () => {
+  const TODO_BASE_PATH = path.resolve(__dirname, '..', 'cedar', 'todo-app');
   let authzenProxy: CedarAuthZENProxy;
   let schema: string;
   let policies: PolicySet;
   let entities: EntityJson[];
 
   beforeAll(() => {
-    const SCHEMA_FILE = path.resolve(BASE_PATH, 'cedarschema');
+    const SCHEMA_FILE = path.resolve(TODO_BASE_PATH, 'cedarschema');
     schema = fs.readFileSync(SCHEMA_FILE, 'utf8');
 
-    policies = getInteropCedarPolicies();
+    policies = getInteropCedarPolicies(TODO_BASE_PATH);
 
-    const ENTITIES_FILE = path.resolve(BASE_PATH, 'cedarentities.json');
+    const ENTITIES_FILE = path.resolve(TODO_BASE_PATH, 'cedarentities.json');
     const entitiesJson: string = fs.readFileSync(ENTITIES_FILE, 'utf-8');
     entities = JSON.parse(entitiesJson);
 
     authzenProxy = new CedarAuthZENProxy();
     authzenProxy.setPolicies(policies);
 
-    const pip = getInteropInMemoryCedarPIP();
+    const pip = getInteropInMemoryCedarPIP(TODO_BASE_PATH);
     authzenProxy.setPip(pip);
   });
 
@@ -100,7 +100,7 @@ suite('Cedar Interop', () => {
 
   test('evaluation uses subject properties', async () => {
     const testProxy = new CedarAuthZENProxy();
-    testProxy.setPolicies(getInteropCedarPolicies());
+    testProxy.setPolicies(getInteropCedarPolicies(TODO_BASE_PATH));
     // new CedarInMemoryPIP with no call to pip.setEntities
     testProxy.setPip(new CedarInMemoryPIP());
 

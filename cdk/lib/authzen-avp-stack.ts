@@ -75,10 +75,6 @@ export class AuthZENPolicyStoreStack extends cdk.Stack {
     // --
 
     const entitiesScope = new Construct(this, 'Entities');
-
-    // entities data from AuthZEN Interop Payload Spec
-    // https://authzen-interop.net/docs/scenarios/todo-1.1/
-    // https://authzen-interop.net/docs/scenarios/api-gateway/
     const ENTITIES_FILE = path.resolve(BASE_PATH, 'cedarentities.json');
     const entities: EntityJson[] = JSON.parse(
       fs.readFileSync(ENTITIES_FILE, 'utf-8'),

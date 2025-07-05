@@ -13,7 +13,7 @@ import { CedarInMemoryPIP } from './pip';
 import { EntityJson } from '@cedar-policy/cedar-wasm';
 
 const POLICY_STORE_ID = process.env['POLICY_STORE_ID'] as string;
-const BASE_PATH = path.resolve(__dirname, '..', 'cedar');
+const BASE_PATH = path.resolve(__dirname, '..', 'cedar', 'todo-app');
 
 const app = express();
 app.use(express.json());

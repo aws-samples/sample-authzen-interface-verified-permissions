@@ -1,6 +1,7 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
 import { Server } from 'http';
+import * as path from 'node:path';
 import { app } from '../src/server';
 import {
   backendDecisions,
@@ -19,7 +20,8 @@ suite('Express App Integration Tests', () => {
   beforeAll(async () => {
     // Setup VerifiedPermissionsAuthZEN instance
     authzenProxy = getVerifiedPermissionsAuthZENProxy();
-    const pip = getInteropInMemoryCedarPIP();
+    const TODO_BASE_PATH = path.resolve(__dirname, '..', 'cedar', 'todo-app');
+    const pip = getInteropInMemoryCedarPIP(TODO_BASE_PATH);
     authzenProxy.setPip(pip);
 
     // Start the server

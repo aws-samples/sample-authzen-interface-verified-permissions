@@ -18,13 +18,18 @@ const tags = {
 
 const stackName = app.node.tryGetContext('stackName');
 
+// entities data from AuthZEN Interop Payload Spec
+// https://authzen-interop.net/docs/scenarios/todo-1.1/
+// https://authzen-interop.net/docs/scenarios/api-gateway/
+const BASE_PATH = path.resolve(__dirname, '..', '..', 'cedar', 'todo-app');
+
 // cd cdk && npx cdk deploy AuthZENPolicyStoreStack
 
 new AuthZENPolicyStoreStack(app, 'AuthZENPolicyStoreStack', {
   stackName: stackName || 'AuthZENPolicyStoreStack',
   description: 'Sample AuthZEN Interop Policy Store w/ entities data',
   tags: tags,
-  basePath: path.resolve(__dirname, '..', '..', 'cedar'),
+  basePath: BASE_PATH,
   /* If you don't specify 'env', this stack will be environment-agnostic.
    * Account/Region-dependent features and context lookups will not work,
    * but a single synthesized template can be deployed anywhere. */

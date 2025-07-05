@@ -7,14 +7,16 @@ import {
   getInteropInMemoryCedarPIP,
   backendDecisions,
 } from './util';
+import * as path from 'node:path';
 import { expect, test, beforeAll, suite } from 'vitest';
 
 suite('Verified Permissions Interop', async () => {
+  const TODO_BASE_PATH = path.resolve(__dirname, '..', 'cedar', 'todo-app');
   let authzenProxy: VerifiedPermissionsAuthZENProxy;
 
   beforeAll(async () => {
     authzenProxy = getVerifiedPermissionsAuthZENProxy();
-    authzenProxy.setPip(getInteropInMemoryCedarPIP());
+    authzenProxy.setPip(getInteropInMemoryCedarPIP(TODO_BASE_PATH));
   });
 
   test.each(gatewayDecisions.evaluation || [])(

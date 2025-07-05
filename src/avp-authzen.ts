@@ -115,7 +115,7 @@ export class VerifiedPermissionsAuthZENProxy
         requestData: request,
         stack: error instanceof Error ? error.stack : undefined,
       });
-      throw new Error(`Failed to perform AuthZen evaluation`);
+      throw new Error(`Failed to perform AuthZEN evaluation`);
     }
   }
 
@@ -221,17 +221,17 @@ export class VerifiedPermissionsAuthZENProxy
         requestData: request,
         stack: error instanceof Error ? error.stack : undefined,
       });
-      throw new Error(`Failed to perform AuthZen evaluations`);
+      throw new Error(`Failed to perform AuthZEN evaluations`);
     }
   }
   async subjectsearch(
     request: authzen.SubjectSearchRequest,
   ): Promise<authzen.SearchResponse> {
-    throw new Error('AuthZen subjectsearch not implemented.');
+    throw new Error('AuthZEN subjectsearch not implemented.');
   }
   async resourcesearch(
     request: authzen.ResourceSearchRequest,
   ): Promise<authzen.SearchResponse> {
-    throw new Error('AuthZen resourcesearch not implemented.');
+    throw new Error('AuthZEN resourcesearch not implemented.');
   }
 }

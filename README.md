@@ -35,7 +35,7 @@ As a prerequisite to deploy these stacks, first `git clone` this repository then
 
 ## CDK stack for AuthZEN Interop test data
 
-The AuthZEN Interop scenario and test data were implemented as [Cedar Policy Language](https://docs.cedarpolicy.com/) policies (`cedar/*.cedar` files) and [JSON formatted entities](https://docs.cedarpolicy.com/auth/entities-syntax.html#entities) (`cedar/cedarentities.json` file).  `AuthZENPolicyStoreStack` loads the policy files into a Verified Permissions policy store and the entity data into a DynamoDB table.
+The AuthZEN 1.0 Draft 02 Interop scenario and test data were implemented as [Cedar Policy Language](https://docs.cedarpolicy.com/) policies (`cedar/todo-app/*.cedar` files) and [JSON formatted entities](https://docs.cedarpolicy.com/auth/entities-syntax.html#entities) (`cedar/todo-app/cedarentities.json` file).  `AuthZENPolicyStoreStack` loads the policy files into a Verified Permissions policy store and the entity data into a DynamoDB table.
 
 1. To deploy this stack, run `npm run cdk:policystore` or `cd cdk && npx cdk deploy AuthZENPolicyStoreStack`.  After the deployment completes, check `cdk/cdk-outputs.json` or view `Outputs` on console:
 
@@ -127,22 +127,22 @@ The API Gateway integration tests (`test/apigateway.test.ts`) and full test suit
 1. Run all tests with `npm run test`.
 
     ```shell
-    ✓ cedar-authzen.test.ts (69 tests) 323ms
-     ✓ pip.test.ts (3 tests) 1209ms
-       ✓ Cedar DynamoDB PIP > Richard Roe 1199ms
-     ✓ avp-authzen.test.ts (68 tests) 5119ms
-       ✓ Verified Permissions Interop > Testing 'CiRmZDA2MTRkMy1jMzlhLTQ3ODEtYjdiZC04Y…' 'GET' '/users/{userId}' 1189ms
-     ✓ server.test.ts (68 tests) 5467ms
-       ✓ Express App Integration Tests > Testing 'CiRmZDA2MTRkMy1jMzlhLTQ3ODEtYjdiZC04Y…' 'GET' '/users/{userId}' 1081ms
-     ✓ lambda.test.ts (68 tests) 9196ms
-       ✓ Lambda Function Tests > Testing evaluation 'CiRmZDA2MTRkMy1jMzlhLTQ3ODEtYjdiZC04Y…' 'GET' '/users/{userId}' 1876ms
-     ✓ apigateway.test.ts (71 tests) 23703ms
-       ✓ API Gateway Integration Tests > Testing 'CiRmZDA2MTRkMy1jMzlhLTQ3ODEtYjdiZC04Y…' 'GET' '/users/{userId}' 1944ms
+     ✓ cedar-authzen.test.ts (71 tests) 711ms
+     ✓ pip.test.ts (3 tests) 2500ms
+       ✓ Cedar DynamoDB PIP Todo (1.0 Draft 02) > Richard Roe & John Doe  2479ms
+     ✓ avp-authzen.test.ts (68 tests) 6260ms
+       ✓ Verified Permissions Interop > Testing 'CiRmZDA2MTRkMy1jMzlhLTQ3ODEtYjdiZC04Y…' 'GET' '/users/{userId}'  2371ms
+     ✓ server.test.ts (68 tests) 6454ms
+       ✓ Express App Integration Tests > Testing 'CiRmZDA2MTRkMy1jMzlhLTQ3ODEtYjdiZC04Y…' 'GET' '/users/{userId}'  2232ms
+     ✓ lambda.test.ts (68 tests) 10434ms
+       ✓ Lambda Function Tests > Testing evaluation 'CiRmZDA2MTRkMy1jMzlhLTQ3ODEtYjdiZC04Y…' 'GET' '/users/{userId}'  3447ms
+     ✓ apigateway.test.ts (71 tests) 19804ms
+       ✓ API Gateway Integration Tests > Testing 'CiRmZDA2MTRkMy1jMzlhLTQ3ODEtYjdiZC04Y…' 'GET' '/users/{userId}'  803ms
     
      Test Files  6 passed (6)
-          Tests  347 passed (347)
-       Start at  11:20:11
-       Duration  24.76s (transform 735ms, setup 0ms, collect 3.52s, tests 45.02s, environment 2ms, prepare 1.16s)
+          Tests  349 passed (349)
+       Start at  10:10:02
+       Duration  21.23s (transform 308ms, setup 0ms, collect 4.78s, tests 46.16s, environment 8ms, prepare 1.29s)
     ```
 
 ## AuthZEN interop scenario test
