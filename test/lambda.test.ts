@@ -5,6 +5,7 @@ import { Context } from 'aws-lambda';
 import {
   EvaluationEvent,
   EvaluationsEvent,
+  HandlerResponse,
   lambdaHandler,
 } from '../cdk/src/lambda';
 import {
@@ -34,8 +35,10 @@ suite('Lambda Function Tests', () => {
       const result = (await lambdaHandler(
         event,
         createMockContext(),
-      )) as AccessEvaluationResponse;
-      expect(result.decision).toBe(expected);
+      )) as HandlerResponse;
+      expect((result.response as AccessEvaluationResponse).decision).toBe(
+        expected,
+      );
     },
   );
 
@@ -50,8 +53,10 @@ suite('Lambda Function Tests', () => {
       const result = (await lambdaHandler(
         event,
         createMockContext(),
-      )) as AccessEvaluationResponse;
-      expect(result.decision).toBe(expected);
+      )) as HandlerResponse;
+      expect((result.response as AccessEvaluationResponse).decision).toBe(
+        expected,
+      );
     },
   );
 
@@ -66,9 +71,12 @@ suite('Lambda Function Tests', () => {
       const result = (await lambdaHandler(
         event,
         createMockContext(),
-      )) as AccessEvaluationsResponse;
+      )) as HandlerResponse;
       expected.forEach((evaluation, index) => {
-        expect(result.evaluations[index].decision).toBe(evaluation.decision);
+        expect(
+          (result.response as AccessEvaluationsResponse).evaluations[index]
+            .decision,
+        ).toBe(evaluation.decision);
       });
     },
   );

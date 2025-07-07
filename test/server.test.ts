@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: MIT-0
 import { Server } from 'http';
 import * as path from 'node:path';
+import { randomUUID } from 'crypto';
 import { app } from '../src/server';
 import {
   backendDecisions,
@@ -36,17 +37,38 @@ suite('Express App Integration Tests', () => {
     await server.close();
   });
 
+  test('/.well-known/authzen-configuration', async () => {
+    const requestId = randomUUID().toString();
+    const response = await fetch(
+      `${AUTHZEN_PDP_URL}/.well-known/authzen-configuration`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Request-ID': requestId,
+        },
+      },
+    );
+    expect(response.status).toBe(200);
+    expect(response.headers.get('X-Request-ID')).toBe(requestId);
+    const result = await response.json();
+    expect(result.policy_decision_point).toBe(AUTHZEN_PDP_URL);
+  });
+
   test.each(gatewayDecisions.evaluation || [])(
     'Testing $request.subject.id $request.action.name $request.resource.id',
     async ({ request, expected }) => {
+      const requestId = randomUUID().toString();
       const response = await fetch(`${AUTHZEN_PDP_URL}/access/v1/evaluation`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'X-Request-ID': requestId,
         },
         body: JSON.stringify(request),
       });
       expect(response.status).toBe(200);
+      expect(response.headers.get('X-Request-ID')).toBe(requestId);
       const result = await response.json();
       expect(result.decision).toBe(expected);
     },

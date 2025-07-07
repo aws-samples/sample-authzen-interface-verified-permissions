@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: MIT-0
 import { expect, test, suite, afterEach, vi } from 'vitest';
 import { backendDecisions, gatewayDecisions } from './util';
+import { randomUUID } from 'crypto';
 
 const { AUTHZEN_PDP_URL, AUTHZEN_PDP_API_KEY } = process.env;
 const sleep = (ms: number): Promise<void> =>
@@ -16,18 +17,37 @@ suite('API Gateway Integration Tests', () => {
     await sleep(100);
   });
 
+  test('/.well-known/authzen-configuration', async () => {
+    const response = await fetch(
+      `${AUTHZEN_PDP_URL}/.well-known/authzen-configuration`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: AUTHZEN_PDP_API_KEY as string,
+        },
+      },
+    );
+    expect(response.status).toBe(200);
+    const result = await response.json();
+    expect(result.policy_decision_point).toBe(AUTHZEN_PDP_URL);
+  });
+
   test.each(gatewayDecisions.evaluation || [])(
     'Testing $request.subject.id $request.action.name $request.resource.id',
     async ({ request, expected }) => {
+      const requestId = randomUUID().toString();
       const response = await fetch(`${AUTHZEN_PDP_URL}/access/v1/evaluation`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: AUTHZEN_PDP_API_KEY as string,
+          'X-Request-ID': requestId,
         },
         body: JSON.stringify(request),
       });
       expect(response.status).toBe(200);
+      expect(response.headers.get('X-Request-ID')).toBe(requestId);
       const result = await response.json();
       expect(result.decision).toBe(expected);
     },

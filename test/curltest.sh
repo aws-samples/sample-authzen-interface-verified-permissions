@@ -3,6 +3,7 @@
 curl -X POST \
   -H "Authorization: ${AUTHZEN_PDP_API_KEY}" \
   -H "Content-Type: application/json" \
+  -H "X-Request-ID: $(date +%s%3)" \
   -D - \
   -d '{
     "subject": {

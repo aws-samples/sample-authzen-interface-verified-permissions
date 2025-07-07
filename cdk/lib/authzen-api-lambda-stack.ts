@@ -14,6 +14,9 @@ import { NagSuppressions } from 'cdk-nag';
 import {
   AccessEvaluationRequestSchema,
   AccessEvaluationsRequestSchema,
+  ActionSearchRequestSchema,
+  ResourceSearchRequestSchema,
+  SubjectSearchRequestSchema,
   zodToOpenAPISchema,
 } from '../../src/authzen';
 export interface AuthZENPDPStackProps extends cdk.StackProps {
@@ -42,7 +45,8 @@ export class AuthZENPDPStack extends cdk.Stack {
         requestTemplates: {
           'application/json': `{
   "api": "${api}",
-  "request": $input.json('$')
+  "request": $input.json('$'),
+  "requestId": "$input.params('X-Request-ID')"
 }`,
         },
         integrationResponses: [
@@ -55,8 +59,12 @@ export class AuthZENPDPStack extends cdk.Stack {
             responseTemplates: {
               'application/json': `
 #set($inputRoot = $input.path('$'))
+#set($requestId = $input.path('$.requestId'))
+#if($requestId && "$requestId" != "" && "$requestId" != "null")
+  #set($context.responseOverride.header.X-Request-ID = $requestId)
+#end
 #if($inputRoot && "$inputRoot" != "null")
-  $input.json('$')
+  $input.json('$.response')
 #else
   #set($context.responseOverride.status = 501)
   null
@@ -103,6 +111,7 @@ export class AuthZENPDPStack extends cdk.Stack {
               statusCode: '200',
               responseParameters: {
                 'method.response.header.Content-Type': true,
+                'method.response.header.X-Request-ID': true,
               },
             },
             {
@@ -269,20 +278,26 @@ export class AuthZENPDPStack extends cdk.Stack {
     });
     usagePlan.addApiKey(apiKey);
 
+    const authorizerScope = new Construct(this, 'Authorizer');
+
     // NOTE: In this sample, access to the API uses a shared secret for simplicity
     // Review your threat model and adopt more robust mechanisms such as OAuth 2.0 bearer tokens,
     // client certificate authentication, or AWS Identity and Access Management (IAM) temporary credentials.
-    const apiSecret = new secretsmanager.Secret(this, 'ApiCredentials', {
-      description: 'AuthZEN PDP API Credentials',
-      generateSecretString: {
-        secretStringTemplate: '{}',
-        generateStringKey: 'authSecret',
-        includeSpace: false,
-        passwordLength: 40,
-        requireEachIncludedType: true,
-        excludePunctuation: true,
+    const apiSecret = new secretsmanager.Secret(
+      authorizerScope,
+      'ApiCredentials',
+      {
+        description: 'AuthZEN PDP API Credentials',
+        generateSecretString: {
+          secretStringTemplate: '{}',
+          generateStringKey: 'authSecret',
+          includeSpace: false,
+          passwordLength: 40,
+          requireEachIncludedType: true,
+          excludePunctuation: true,
+        },
       },
-    });
+    );
     NagSuppressions.addResourceSuppressions(
       apiSecret,
       [
@@ -296,7 +311,7 @@ export class AuthZENPDPStack extends cdk.Stack {
 
     // Create the custom resource provider to update the secret with the API key value
     const apiKeyProviderFunction = new nodejs.NodejsFunction(
-      this,
+      authorizerScope,
       'ApiKeyValueProviderLambda',
       {
         description: 'API Key Value Capture Function',
@@ -321,7 +336,7 @@ export class AuthZENPDPStack extends cdk.Stack {
     );
     createLogGroup(observabilityScope, apiKeyProviderFunction);
     const apiKeyProvider = new cdk.custom_resources.Provider(
-      this,
+      authorizerScope,
       'ApiKeyValueProvider',
       {
         onEventHandler: apiKeyProviderFunction,
@@ -346,7 +361,7 @@ export class AuthZENPDPStack extends cdk.Stack {
           reason: 'Needs access to lambda:InvokeFunction *',
           appliesTo: [
             'Action::lambda:InvokeFunction',
-            `Resource::<ApiKeyValueProviderLambda5F07729C.Arn>:*`,
+            `Resource::<AuthorizerApiKeyValueProviderLambdaD818C282.Arn>:*`,
           ],
         },
       ],
@@ -354,7 +369,7 @@ export class AuthZENPDPStack extends cdk.Stack {
     );
 
     // Create the custom resource
-    new cdk.CustomResource(this, 'ApiKeyValueCapture', {
+    new cdk.CustomResource(authorizerScope, 'ApiKeyValueCapture', {
       serviceToken: apiKeyProvider.serviceToken,
       properties: {
         ApiKeyId: apiKey.keyId,
@@ -370,7 +385,7 @@ export class AuthZENPDPStack extends cdk.Stack {
 
     // Create Lambda authorizer
     const authorizerFunction = new nodejs.NodejsFunction(
-      this,
+      authorizerScope,
       'AuthorizerLambda',
       {
         description: 'AuthZEN PDP Lambda Authorizer Function',
@@ -397,14 +412,19 @@ export class AuthZENPDPStack extends cdk.Stack {
     apiSecret.grantRead(authorizerFunction);
 
     // Create authorizer
-    const authorizer = new apigateway.TokenAuthorizer(this, 'ApiAuthorizer', {
-      handler: authorizerFunction,
-      identitySource: apigateway.IdentitySource.header('Authorization'),
-      // resultsCacheTtl: cdk.Duration.seconds(0),
-    });
+    const authorizer = new apigateway.TokenAuthorizer(
+      authorizerScope,
+      'ApiAuthorizer',
+      {
+        handler: authorizerFunction,
+        identitySource: apigateway.IdentitySource.header('Authorization'),
+        // resultsCacheTtl: cdk.Duration.seconds(0),
+      },
+    );
 
+    const modelsScope = new Construct(this, 'Models');
     const evaluationRequestModel = new apigateway.Model(
-      this,
+      modelsScope,
       'EvaluationRequestModel',
       {
         restApi: api,
@@ -415,7 +435,7 @@ export class AuthZENPDPStack extends cdk.Stack {
       },
     );
     const evaluationsRequestModel = new apigateway.Model(
-      this,
+      modelsScope,
       'EvaluationRequestsModel',
       {
         restApi: api,
@@ -423,6 +443,39 @@ export class AuthZENPDPStack extends cdk.Stack {
         description: 'Validation model for AuthZEN evaluations requests',
         modelName: 'EvaluationsRequest',
         schema: zodToOpenAPISchema(AccessEvaluationsRequestSchema),
+      },
+    );
+    const subjectSearchRequestModel = new apigateway.Model(
+      modelsScope,
+      'SubjectSearchRequestModel',
+      {
+        restApi: api,
+        contentType: 'application/json',
+        description: 'Validation model for AuthZEN subject search requests',
+        modelName: 'SubjectSearchRequest',
+        schema: zodToOpenAPISchema(SubjectSearchRequestSchema),
+      },
+    );
+    const resourceSearchRequestModel = new apigateway.Model(
+      modelsScope,
+      'ResourceSearchRequestModel',
+      {
+        restApi: api,
+        contentType: 'application/json',
+        description: 'Validation model for AuthZEN resource search requests',
+        modelName: 'ResourceSearchRequest',
+        schema: zodToOpenAPISchema(ResourceSearchRequestSchema),
+      },
+    );
+    const actionSearchRequestModel = new apigateway.Model(
+      modelsScope,
+      'ActionSearchRequestModel',
+      {
+        restApi: api,
+        contentType: 'application/json',
+        description: 'Validation model for AuthZEN action search requests',
+        modelName: 'ActionSearchRequest',
+        schema: zodToOpenAPISchema(ActionSearchRequestSchema),
       },
     );
 
@@ -433,6 +486,7 @@ export class AuthZENPDPStack extends cdk.Stack {
     });
 
     const v1 = api.root.addResource('access').addResource('v1');
+    const search = v1.addResource('search');
 
     // https://openid.github.io/authzen/#name-https-access-evaluation-req
     const evaluationResource = v1.addResource('evaluation');
@@ -447,12 +501,81 @@ export class AuthZENPDPStack extends cdk.Stack {
     });
 
     // https://openid.github.io/authzen/#name-https-subject-search-reques
-    const subjectsearchResource = v1.addResource('subjectsearch');
-    createPOSTMethod(subjectsearchResource, 'subjectsearch', undefined);
+    const subjectsearchResource = search.addResource('subject');
+    createPOSTMethod(subjectsearchResource, 'subjectsearch', {
+      'application/json': subjectSearchRequestModel,
+    });
 
     // https://openid.github.io/authzen/#name-https-resource-search-reque
-    const resourcesearchResource = v1.addResource('resourcesearch');
-    createPOSTMethod(resourcesearchResource, 'resourcesearch', undefined);
+    const resourcesearchResource = search.addResource('resource');
+    createPOSTMethod(resourcesearchResource, 'resourcesearch', {
+      'application/json': resourceSearchRequestModel,
+    });
+
+    // https://openid.github.io/authzen/#name-https-action-search-request
+    const actionsearchResource = search.addResource('action');
+    createPOSTMethod(actionsearchResource, 'actionsearch', {
+      'application/json': actionSearchRequestModel,
+    });
+
+    const authzenConfiguration = api.root
+      .addResource('.well-known')
+      .addResource('authzen-configuration');
+
+    // Add GET method for AuthZEN configuration endpoint
+    const method = authzenConfiguration.addMethod(
+      'GET',
+      new apigateway.MockIntegration({
+        requestTemplates: {
+          'application/json': '{ "statusCode": 200 }',
+        },
+        integrationResponses: [
+          {
+            statusCode: '200',
+            responseParameters: {
+              'method.response.header.Content-Type': "'application/json'",
+            },
+            responseTemplates: {
+              'application/json': `#set($basePath = "")
+#if($context.domainName.contains(".execute-api."))
+  #set($basePath = "/$context.stage")
+#end
+{
+  "policy_decision_point": "https://$context.domainName$basePath",
+  "access_evaluation_endpoint": "https://$context.domainName$basePath/access/v1/evaluation",
+  "access_evaluations_endpoint": "https://$context.domainName$basePath/access/v1/evaluations",
+  "search_subject_endpoint": "https://$context.domainName$basePath/access/v1/search/subject",
+  "search_action_endpoint": "https://$context.domainName$basePath/access/v1/search/action",
+  "search_resource_endpoint": "https://$context.domainName$basePath/access/v1/search/resource"
+}`,
+            },
+          },
+        ],
+      }),
+      {
+        authorizer: authorizer,
+        apiKeyRequired: true,
+        methodResponses: [
+          {
+            statusCode: '200',
+            responseParameters: {
+              'method.response.header.Content-Type': true,
+            },
+          },
+        ],
+      },
+    );
+    NagSuppressions.addResourceSuppressions(
+      method,
+      [
+        {
+          id: 'AwsSolutions-COG4',
+          reason:
+            'Custom authorizer that gets shared secret from Authorization header',
+        },
+      ],
+      true,
+    );
 
     handler.addPermission('APIGatewayInvoke', {
       principal: new cdk.aws_iam.ServicePrincipal('apigateway.amazonaws.com'),

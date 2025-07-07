@@ -13,6 +13,8 @@ import {
   AccessEvaluationsRequest,
   AccessEvaluationsRequestSchema,
   AccessEvaluationsResponse,
+  ActionSearchRequest,
+  ActionSearchResponse,
   ResourceSearchRequest,
   SearchResponse,
   SubjectSearchRequest,
@@ -43,22 +45,43 @@ if (ENTITIES_TABLE_NAME) {
   authzenProxy.setPip(pip);
 }
 
+// validate X-Request-ID header against common trace id formats
+const requestIdPattern = /^[a-zA-Z0-9._:\/-]+$/;
+
 // Custom event types for AuthZEN APIs
 export interface EvaluationEvent {
   api: 'evaluation';
+  requestId?: string;
   request: AccessEvaluationRequest;
 }
 export interface EvaluationsEvent {
   api: 'evaluations';
+  requestId?: string;
   request: AccessEvaluationsRequest;
 }
 export interface SubjectSearchEvent {
   api: 'subjectsearch';
+  requestId?: string;
   request: SubjectSearchRequest;
 }
 export interface ResourceSearchEvent {
   api: 'resourcesearch';
+  requestId?: string;
   request: ResourceSearchRequest;
+}
+export interface ActionSearchEvent {
+  api: 'actionsearch';
+  requestId?: string;
+  request: ActionSearchRequest;
+}
+
+export interface HandlerResponse {
+  requestId?: string;
+  response:
+    | AccessEvaluationResponse
+    | AccessEvaluationsResponse
+    | SearchResponse
+    | ActionSearchResponse;
 }
 
 class Lambda implements LambdaInterface {
@@ -69,18 +92,28 @@ class Lambda implements LambdaInterface {
       | EvaluationEvent
       | EvaluationsEvent
       | SubjectSearchEvent
-      | ResourceSearchEvent,
+      | ResourceSearchEvent
+      | ActionSearchEvent,
     context: Context,
-  ): Promise<
-    AccessEvaluationResponse | AccessEvaluationsResponse | SearchResponse
-  > {
+  ): Promise<HandlerResponse> {
     logger.appendKeys({
-      api: event.api,
+      authzen_api: event.api,
     });
     logger.addContext(context);
 
-    tracer.putAnnotation('api', event.api);
-    tracer.putAnnotation('policyStoreId', POLICY_STORE_ID);
+    if (event.requestId) {
+      if (requestIdPattern.test(event.requestId)) {
+        logger.appendKeys({
+          authzen_request_id: event.requestId,
+        });
+        tracer.putAnnotation('authzen_request_id', event.requestId);
+      } else {
+        event.requestId = undefined;
+      }
+    }
+
+    tracer.putAnnotation('authzen_api', event.api);
+    tracer.putAnnotation('PolicyStoreId', POLICY_STORE_ID);
 
     logger.info('Processing event', {
       requestData: event.request,
@@ -119,6 +152,13 @@ class Lambda implements LambdaInterface {
         logger.info('SearchResponse', {
           result: response,
         });
+      } else if (event.api === 'actionsearch') {
+        response = await authzenProxy.actionsearch(
+          event.request as ActionSearchRequest,
+        );
+        logger.info('ActionSearchResponse', {
+          result: response,
+        });
       }
     } catch (error) {
       logger.error('Error processing event', {
@@ -131,7 +171,12 @@ class Lambda implements LambdaInterface {
       logger.resetKeys();
     }
 
-    return response;
+    const handlerResponse = {
+      ...(event.requestId && { requestId: event.requestId }),
+      response: response,
+    };
+
+    return handlerResponse;
   }
 }
 

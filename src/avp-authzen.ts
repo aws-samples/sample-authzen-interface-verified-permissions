@@ -214,4 +214,9 @@ export class VerifiedPermissionsAuthZENProxy
   ): Promise<authzen.SearchResponse> {
     throw new Error('AuthZEN resourcesearch not implemented.');
   }
+  actionsearch(
+    request: authzen.ActionSearchRequest,
+  ): Promise<authzen.ActionSearchResponse> {
+    throw new Error('AuthZEN actionsearch not implemented.');
+  }
 }

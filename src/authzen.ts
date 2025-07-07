@@ -120,21 +120,52 @@ export type AccessEvaluationsResponse = {
   evaluations: AccessEvaluationResponse[];
 };
 
-export type EntityWithOptionalId = Omit<Entity, 'id'> & { id?: string };
-export type SubjectSearchRequest = {
-  subject: EntityWithOptionalId;
-  resource: Entity;
-  action: Action;
-  page?: string;
-};
-export type ResourceSearchRequest = {
-  subject: Entity;
-  resource: EntityWithOptionalId;
-  action: Action;
-  page?: string;
-};
+const EntityWithOptionalIdSchema = z.object({
+  type: z.string(),
+  id: z.string().optional(),
+});
+
+const PageSchema = z.object({
+  next_token: z.string(),
+});
+
+export const SubjectSearchRequestSchema = z.object({
+  subject: EntityWithOptionalIdSchema,
+  resource: EntitySchema,
+  action: ActionSchema,
+  context: z.record(z.unknown()).optional(),
+  page: PageSchema.optional(),
+});
+
+export const ResourceSearchRequestSchema = z.object({
+  subject: EntitySchema,
+  resource: EntityWithOptionalIdSchema,
+  action: ActionSchema,
+  context: z.record(z.unknown()).optional(),
+  page: PageSchema.optional(),
+});
+
+export const ActionSearchRequestSchema = z.object({
+  subject: EntitySchema,
+  resource: EntitySchema,
+  context: z.record(z.unknown()).optional(),
+  page: PageSchema.optional(),
+});
+
+export type EntityWithOptionalId = z.infer<typeof EntityWithOptionalIdSchema>;
+export type SubjectSearchRequest = z.infer<typeof SubjectSearchRequestSchema>;
+export type ResourceSearchRequest = z.infer<typeof ResourceSearchRequestSchema>;
+export type ActionSearchRequest = z.infer<typeof ActionSearchRequestSchema>;
 export type SearchResponse = {
   results: Entity[];
+  page?: {
+    next_token: string;
+  };
+};
+export type ActionSearchResponse = {
+  results: {
+    name: string;
+  }[];
   page?: {
     next_token: string;
   };
@@ -149,4 +180,5 @@ export interface IAuthZEN {
   ): Promise<AccessEvaluationsResponse>;
   subjectsearch(request: SubjectSearchRequest): Promise<SearchResponse>;
   resourcesearch(request: ResourceSearchRequest): Promise<SearchResponse>;
+  actionsearch(request: ActionSearchRequest): Promise<ActionSearchResponse>;
 }
