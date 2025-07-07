@@ -1,0 +1,16 @@
+entity user {
+  id: String,
+  role: String,
+  department: String
+};
+entity record {
+  id: String,
+  title: String,
+  department: String,
+  owner: String,
+};
+action "view", "edit", "delete" appliesTo {
+  principal: [user],
+  resource: [record],
+  context: {}
+};
