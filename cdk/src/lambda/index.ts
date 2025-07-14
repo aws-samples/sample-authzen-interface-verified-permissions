@@ -9,14 +9,12 @@ import { VerifiedPermissionsAuthZENProxy } from '../../../src/avp-authzen';
 import {
   AccessEvaluationRequest,
   AccessEvaluationRequestSchema,
-  AccessEvaluationResponse,
   AccessEvaluationsRequest,
   AccessEvaluationsRequestSchema,
-  AccessEvaluationsResponse,
   ActionSearchRequest,
-  ActionSearchResponse,
+  AuthZENRequest,
+  AuthZENResponse,
   ResourceSearchRequest,
-  SearchResponse,
   SubjectSearchRequest,
 } from '../../../src/authzen';
 import { CedarDynamoDBPIP } from '../../../src/pip';
@@ -49,51 +47,52 @@ if (ENTITIES_TABLE_NAME) {
 const requestIdPattern = /^[a-zA-Z0-9._:\/-]+$/;
 
 // Custom event types for AuthZEN APIs
-export interface EvaluationEvent {
+type AuthZENAPI =
+  | 'evaluation'
+  | 'evaluations'
+  | 'subjectsearch'
+  | 'resourcesearch'
+  | 'actionsearch';
+
+export interface AuthZENEvent<T = AuthZENRequest> {
+  api: AuthZENAPI;
+  requestId?: string;
+  request: T;
+}
+
+export type EvaluationEvent = AuthZENEvent<AccessEvaluationRequest> & {
   api: 'evaluation';
-  requestId?: string;
-  request: AccessEvaluationRequest;
-}
-export interface EvaluationsEvent {
+};
+export type EvaluationsEvent = AuthZENEvent<AccessEvaluationsRequest> & {
   api: 'evaluations';
-  requestId?: string;
-  request: AccessEvaluationsRequest;
-}
-export interface SubjectSearchEvent {
+};
+export type SubjectSearchEvent = AuthZENEvent<SubjectSearchRequest> & {
   api: 'subjectsearch';
-  requestId?: string;
-  request: SubjectSearchRequest;
-}
-export interface ResourceSearchEvent {
+};
+export type ResourceSearchEvent = AuthZENEvent<ResourceSearchRequest> & {
   api: 'resourcesearch';
-  requestId?: string;
-  request: ResourceSearchRequest;
-}
-export interface ActionSearchEvent {
+};
+export type ActionSearchEvent = AuthZENEvent<ActionSearchRequest> & {
   api: 'actionsearch';
-  requestId?: string;
-  request: ActionSearchRequest;
-}
+};
+
+type AuthZENEventUnion =
+  | EvaluationEvent
+  | EvaluationsEvent
+  | SubjectSearchEvent
+  | ResourceSearchEvent
+  | ActionSearchEvent;
 
 export interface HandlerResponse {
   requestId?: string;
-  response:
-    | AccessEvaluationResponse
-    | AccessEvaluationsResponse
-    | SearchResponse
-    | ActionSearchResponse;
+  response: AuthZENResponse;
 }
 
 class Lambda implements LambdaInterface {
   // decorate the handler class method for X-Ray
   @tracer.captureLambdaHandler({ captureResponse: true })
   public async handler(
-    event:
-      | EvaluationEvent
-      | EvaluationsEvent
-      | SubjectSearchEvent
-      | ResourceSearchEvent
-      | ActionSearchEvent,
+    event: AuthZENEventUnion,
     context: Context,
   ): Promise<HandlerResponse> {
     logger.appendKeys({
@@ -120,7 +119,7 @@ class Lambda implements LambdaInterface {
       policyStoreId: POLICY_STORE_ID,
     });
 
-    let response = null;
+    let response: AuthZENResponse | null = null;
     try {
       if (event.api === 'evaluation') {
         const validatedData = AccessEvaluationRequestSchema.parse(

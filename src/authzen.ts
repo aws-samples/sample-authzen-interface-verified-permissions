@@ -182,3 +182,16 @@ export interface IAuthZEN {
   resourcesearch(request: ResourceSearchRequest): Promise<SearchResponse>;
   actionsearch(request: ActionSearchRequest): Promise<ActionSearchResponse>;
 }
+
+export type AuthZENRequest =
+  | AccessEvaluationRequest
+  | AccessEvaluationsRequest
+  | SubjectSearchRequest
+  | ResourceSearchRequest
+  | ActionSearchRequest;
+
+export type AuthZENResponse =
+  | AccessEvaluationResponse
+  | AccessEvaluationsResponse
+  | SearchResponse
+  | ActionSearchResponse;
