@@ -4,11 +4,25 @@ import {
   CedarValueJson,
   EntityJson,
   EntityUidJson,
+  Schema,
+  SchemaJson,
   TypeAndId,
 } from '@cedar-policy/cedar-wasm';
 import { DynamoDBClient, AttributeValue } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, BatchGetCommand } from '@aws-sdk/lib-dynamodb';
+import * as fs from 'fs';
+import * as path from 'path';
 export abstract class CedarPIP {
+  private _schema: Schema;
+
+  get schema(): Schema {
+    return this._schema;
+  }
+
+  set schema(value: Schema) {
+    this._schema = value;
+  }
+
   protected makeEntityKey(identifier: EntityUidJson): string {
     const { type, id } =
       '__entity' in identifier ? identifier.__entity : identifier;
@@ -24,6 +38,26 @@ export interface ICedarPIPProvider {
 
 export class CedarInMemoryPIP extends CedarPIP {
   protected entitiesByType: Record<string, Record<string, EntityJson>> = {};
+
+  static fromBasePath(basePath: string): CedarInMemoryPIP {
+    const entitiesJson: string = fs.readFileSync(
+      path.join(basePath, 'cedarentities.json'),
+      'utf-8',
+    );
+    const entities: EntityJson[] = JSON.parse(entitiesJson);
+
+    const schemaJson: string = fs.readFileSync(
+      path.join(basePath, 'cedarschema.json'),
+      'utf-8',
+    );
+    const schema: SchemaJson<string> = JSON.parse(schemaJson);
+
+    const pip = new CedarInMemoryPIP();
+    pip.setEntities(entities);
+    pip.schema = schema;
+
+    return pip;
+  }
 
   async findEntities(uids: TypeAndId[]): Promise<EntityJson[]> {
     const entities: EntityJson[] = [];

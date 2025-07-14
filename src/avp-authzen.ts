@@ -16,10 +16,7 @@ import { CedarPIPAuthZENProxy } from './base-authzen';
 import { EntityJson } from '@cedar-policy/cedar-wasm';
 import { Logger } from '@aws-lambda-powertools/logger';
 
-export class VerifiedPermissionsAuthZENProxy
-  extends CedarPIPAuthZENProxy
-  implements authzen.IAuthZEN
-{
+export class VerifiedPermissionsAuthZENProxy extends CedarPIPAuthZENProxy {
   private client: VerifiedPermissionsClient;
   private policyStoreId: string;
   private logger = new Logger({

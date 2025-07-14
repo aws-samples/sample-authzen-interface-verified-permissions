@@ -3,8 +3,8 @@
 import * as path from 'node:path';
 import { CedarDynamoDBPIP, CedarInMemoryPIP } from '../src/pip';
 import { EntityJson, TypeAndId } from '@cedar-policy/cedar-wasm';
-import { getInteropDynamoDBCedarPIP, getInteropInMemoryCedarPIP } from './util';
 import { expect, test, beforeAll, suite } from 'vitest';
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 
 // https://github.com/openid/authzen/blob/main/interop/authzen-api-gateways/test-harness/test/decisions.json
 suite('Cedar InMemory PIP Todo (1.0 Draft 02)', async () => {
@@ -12,7 +12,7 @@ suite('Cedar InMemory PIP Todo (1.0 Draft 02)', async () => {
   let pip: CedarInMemoryPIP;
 
   beforeAll(async () => {
-    pip = getInteropInMemoryCedarPIP(TODO_BASE_PATH);
+    pip = CedarInMemoryPIP.fromBasePath(TODO_BASE_PATH);
   });
 
   test('Richard Roe & John Doe', async () => {
@@ -71,7 +71,8 @@ suite('Cedar DynamoDB PIP Todo (1.0 Draft 02)', async () => {
 
   beforeAll(async () => {
     const ENTITIES_TABLE_NAME = process.env['ENTITIES_TABLE_NAME'] as string;
-    pip = getInteropDynamoDBCedarPIP(ENTITIES_TABLE_NAME);
+    const client = new DynamoDBClient({});
+    pip = new CedarDynamoDBPIP(client, ENTITIES_TABLE_NAME);
   });
 
   test('Richard Roe & John Doe', async () => {

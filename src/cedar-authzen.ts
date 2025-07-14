@@ -9,17 +9,39 @@ import {
   TypeAndId,
   Context,
   EntityJson,
+  PolicyId,
+  Policy,
 } from '@cedar-policy/cedar-wasm';
 import { CedarPIPAuthZENProxy } from './base-authzen';
+import * as fs from 'fs';
+import * as path from 'path';
+export class CedarAuthZENProxy extends CedarPIPAuthZENProxy {
+  private _policies: PolicySet = {};
 
-export class CedarAuthZENProxy
-  extends CedarPIPAuthZENProxy
-  implements authzen.IAuthZEN
-{
-  private policies: PolicySet = {};
+  get policies(): PolicySet {
+    return this._policies;
+  }
 
-  setPolicies(policies: PolicySet): void {
-    this.policies = policies;
+  set policies(value: PolicySet) {
+    this._policies = value;
+  }
+
+  static fromBasePath(basePath: string): CedarAuthZENProxy {
+    const staticPolicies: Record<PolicyId, Policy> = {};
+    const files = fs.readdirSync(basePath);
+    for (const file of files) {
+      if (path.extname(file) === '.cedar') {
+        const filePath = path.join(basePath, file);
+
+        const content = fs.readFileSync(filePath, 'utf8');
+        staticPolicies[file] = content;
+      }
+    }
+
+    const authzenProxy = new CedarAuthZENProxy();
+    authzenProxy.policies = { staticPolicies: staticPolicies };
+
+    return authzenProxy;
   }
 
   convert(entity: authzen.Entity): TypeAndId {

@@ -127,22 +127,21 @@ The API Gateway integration tests (`test/apigateway.test.ts`) and full test suit
 1. Run all tests with `npm run test`.
 
     ```shell
-     ✓ cedar-authzen.test.ts (71 tests) 711ms
-     ✓ pip.test.ts (3 tests) 2500ms
-       ✓ Cedar DynamoDB PIP Todo (1.0 Draft 02) > Richard Roe & John Doe  2479ms
-     ✓ avp-authzen.test.ts (68 tests) 6260ms
-       ✓ Verified Permissions Interop > Testing 'CiRmZDA2MTRkMy1jMzlhLTQ3ODEtYjdiZC04Y…' 'GET' '/users/{userId}'  2371ms
-     ✓ server.test.ts (68 tests) 6454ms
-       ✓ Express App Integration Tests > Testing 'CiRmZDA2MTRkMy1jMzlhLTQ3ODEtYjdiZC04Y…' 'GET' '/users/{userId}'  2232ms
-     ✓ lambda.test.ts (68 tests) 10434ms
-       ✓ Lambda Function Tests > Testing evaluation 'CiRmZDA2MTRkMy1jMzlhLTQ3ODEtYjdiZC04Y…' 'GET' '/users/{userId}'  3447ms
-     ✓ apigateway.test.ts (71 tests) 19804ms
-       ✓ API Gateway Integration Tests > Testing 'CiRmZDA2MTRkMy1jMzlhLTQ3ODEtYjdiZC04Y…' 'GET' '/users/{userId}'  803ms
+     ✓ cedar-authzen.test.ts (74 tests) 410ms
+     ✓ pip.test.ts (3 tests) 2504ms
+       ✓ Cedar DynamoDB PIP Todo (1.0 Draft 02) > Richard Roe & John Doe  2482ms
+     ✓ avp-authzen.test.ts (68 tests) 6169ms
+       ✓ Verified Permissions Interop > Testing 'CiRmZDA2MTRkMy1jMzlhLTQ3ODEtYjdiZC04Y…' 'GET' '/users/{userId}'  2286ms
+     ✓ lambda.test.ts (68 tests) 10171ms
+       ✓ Lambda Function Tests > Testing evaluation 'CiRmZDA2MTRkMy1jMzlhLTQ3ODEtYjdiZC04Y…' 'GET' '/users/{userId}'  3257ms
+     ✓ server.test.ts (69 tests) 10885ms
+       ✓ Express App Integration Interop Todo (1.0 Draft 02) > Testing 'CiRmZDA2MTRkMy1jMzlhLTQ3ODEtYjdiZC04Y…' 'GET' '/users/{userId}'  3032ms
+     ✓ apigateway.test.ts (72 tests) 26730ms
     
      Test Files  6 passed (6)
-          Tests  349 passed (349)
-       Start at  10:10:02
-       Duration  21.23s (transform 308ms, setup 0ms, collect 4.78s, tests 46.16s, environment 8ms, prepare 1.29s)
+          Tests  354 passed (354)
+       Start at  20:51:34
+       Duration  28.55s (transform 449ms, setup 0ms, collect 5.43s, tests 56.87s, environment 1ms, prepare 1.79s)
     ```
 
 ## AuthZEN interop scenario test

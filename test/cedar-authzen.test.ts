@@ -1,16 +1,11 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
 import * as cedar from '@cedar-policy/cedar-wasm/nodejs';
-import { DetailedError, EntityJson, PolicySet } from '@cedar-policy/cedar-wasm';
+import { DetailedError, EntityJson } from '@cedar-policy/cedar-wasm';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { CedarAuthZENProxy } from '../src/cedar-authzen';
-import {
-  gatewayDecisions,
-  getInteropInMemoryCedarPIP,
-  getInteropCedarPolicies,
-  backendDecisions,
-} from './util';
+import { gatewayDecisions, backendDecisions } from './util';
 import { expect, test, beforeAll, suite } from 'vitest';
 import { CedarInMemoryPIP } from '../src/pip';
 import { ReasonObject } from '../src/authzen';
@@ -24,30 +19,23 @@ suite('Cedar WASM', async () => {
 suite('Cedar Interop Todo (1.0 Draft 02)', () => {
   const TODO_BASE_PATH = path.resolve(__dirname, '..', 'cedar', 'todo-app');
   let authzenProxy: CedarAuthZENProxy;
-  let schema: string;
-  let policies: PolicySet;
   let entities: EntityJson[];
+  let pip: CedarInMemoryPIP;
 
   beforeAll(() => {
-    const SCHEMA_FILE = path.resolve(TODO_BASE_PATH, 'cedarschema');
-    schema = fs.readFileSync(SCHEMA_FILE, 'utf8');
-
-    policies = getInteropCedarPolicies(TODO_BASE_PATH);
-
     const ENTITIES_FILE = path.resolve(TODO_BASE_PATH, 'cedarentities.json');
     const entitiesJson: string = fs.readFileSync(ENTITIES_FILE, 'utf-8');
     entities = JSON.parse(entitiesJson);
 
-    authzenProxy = new CedarAuthZENProxy();
-    authzenProxy.setPolicies(policies);
+    authzenProxy = CedarAuthZENProxy.fromBasePath(TODO_BASE_PATH);
 
-    const pip = getInteropInMemoryCedarPIP(TODO_BASE_PATH);
+    pip = CedarInMemoryPIP.fromBasePath(TODO_BASE_PATH);
     authzenProxy.setPip(pip);
   });
 
   test('parse Schema', () => {
     let errorMessage;
-    const answer = cedar.checkParseSchema(schema);
+    const answer = cedar.checkParseSchema(pip.schema);
     if (answer.type == 'failure') {
       errorMessage = `${answer.errors.map((err: DetailedError) => `- ${err.message}`).join('\n')}`;
     }
@@ -57,7 +45,7 @@ suite('Cedar Interop Todo (1.0 Draft 02)', () => {
   test('parse Entities', () => {
     let errorMessage;
     const answer = cedar.checkParseEntities({
-      schema: schema,
+      schema: pip.schema,
       entities: entities,
     });
     if (answer.type == 'failure') {
@@ -70,8 +58,8 @@ suite('Cedar Interop Todo (1.0 Draft 02)', () => {
     let errorMessage;
     const answer = cedar.validate({
       validationSettings: { mode: 'strict' },
-      schema: schema,
-      policies: policies,
+      schema: pip.schema,
+      policies: authzenProxy.policies,
     });
     if (answer.type == 'failure') {
       errorMessage = `${answer.errors.map((err: DetailedError) => `- ${err.message}`).join('\n')}`;
@@ -109,8 +97,7 @@ suite('Cedar Interop Todo (1.0 Draft 02)', () => {
   );
 
   test('evaluation uses subject properties', async () => {
-    const testProxy = new CedarAuthZENProxy();
-    testProxy.setPolicies(getInteropCedarPolicies(TODO_BASE_PATH));
+    const testProxy = CedarAuthZENProxy.fromBasePath(TODO_BASE_PATH);
     // new CedarInMemoryPIP with no call to pip.setEntities
     testProxy.setPip(new CedarInMemoryPIP());
 

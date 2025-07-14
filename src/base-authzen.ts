@@ -4,7 +4,24 @@ import * as authzen from './authzen';
 import { EntityJson, TypeAndId } from '@cedar-policy/cedar-wasm';
 import { ICedarPIPProvider, CedarPIP } from './pip';
 
-export abstract class CedarPIPAuthZENProxy implements ICedarPIPProvider {
+export abstract class CedarPIPAuthZENProxy
+  implements ICedarPIPProvider, authzen.IAuthZEN
+{
+  abstract evaluation(
+    request: authzen.AccessEvaluationRequest,
+  ): Promise<authzen.AccessEvaluationResponse>;
+  abstract evaluations(
+    request: authzen.AccessEvaluationsRequest,
+  ): Promise<authzen.AccessEvaluationsResponse>;
+  abstract subjectsearch(
+    request: authzen.SubjectSearchRequest,
+  ): Promise<authzen.SearchResponse>;
+  abstract resourcesearch(
+    request: authzen.ResourceSearchRequest,
+  ): Promise<authzen.SearchResponse>;
+  abstract actionsearch(
+    request: authzen.ActionSearchRequest,
+  ): Promise<authzen.ActionSearchResponse>;
   private pip: CedarPIP;
 
   setPip(pip: CedarPIP): void {

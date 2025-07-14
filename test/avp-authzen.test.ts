@@ -1,10 +1,10 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
 import { VerifiedPermissionsAuthZENProxy } from '../src/avp-authzen';
+import { CedarInMemoryPIP } from '../src/pip';
 import {
   gatewayDecisions,
   getVerifiedPermissionsAuthZENProxy,
-  getInteropInMemoryCedarPIP,
   backendDecisions,
 } from './util';
 import * as path from 'node:path';
@@ -16,7 +16,7 @@ suite('Verified Permissions Interop', async () => {
 
   beforeAll(async () => {
     authzenProxy = getVerifiedPermissionsAuthZENProxy();
-    authzenProxy.setPip(getInteropInMemoryCedarPIP(TODO_BASE_PATH));
+    authzenProxy.setPip(CedarInMemoryPIP.fromBasePath(TODO_BASE_PATH));
   });
 
   test.each(gatewayDecisions.evaluation || [])(
