@@ -1,8 +1,10 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
+import { randomUUID } from 'node:crypto';
+
 import { expect, test, suite, afterEach, vi } from 'vitest';
+
 import { backendDecisions, gatewayDecisions } from './util';
-import { randomUUID } from 'crypto';
 
 const { AUTHZEN_PDP_URL, AUTHZEN_PDP_API_KEY } = process.env;
 const sleep = (ms: number): Promise<void> =>

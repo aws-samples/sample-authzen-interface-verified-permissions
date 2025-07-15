@@ -1,16 +1,18 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
-import * as cdk from 'aws-cdk-lib';
-import * as verifiedpermissions from 'aws-cdk-lib/aws-verifiedpermissions';
-import { EntityJson } from '@cedar-policy/cedar-wasm';
-import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
-import * as cr from 'aws-cdk-lib/custom-resources';
-import { Construct } from 'constructs';
-import { NagSuppressions } from 'cdk-nag';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { CedarDynamoDBPIP } from '../../src/pip';
+
 import { PutItemInput } from '@aws-sdk/client-dynamodb';
+import { EntityJson } from '@cedar-policy/cedar-wasm';
+import * as cdk from 'aws-cdk-lib';
+import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
+import * as verifiedpermissions from 'aws-cdk-lib/aws-verifiedpermissions';
+import * as cr from 'aws-cdk-lib/custom-resources';
+import { NagSuppressions } from 'cdk-nag';
+import { Construct } from 'constructs';
+
+import { CedarDynamoDBPIP } from '../../src/pip';
 
 export interface AuthZENPolicyStoreStackProps extends cdk.StackProps {
   basePath: string;

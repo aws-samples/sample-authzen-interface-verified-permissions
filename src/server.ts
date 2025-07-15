@@ -1,7 +1,13 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import { VerifiedPermissionsClient } from '@aws-sdk/client-verifiedpermissions';
+import { EntityJson } from '@cedar-policy/cedar-wasm';
 import express, { Express, Request, Response } from 'express';
-import { VerifiedPermissionsAuthZENProxy } from './avp-authzen';
+
 import {
   AccessEvaluationRequestSchema,
   AccessEvaluationsRequestSchema,
@@ -9,14 +15,10 @@ import {
   ResourceSearchRequestSchema,
   SubjectSearchRequestSchema,
 } from './authzen';
-import { VerifiedPermissionsClient } from '@aws-sdk/client-verifiedpermissions';
-import * as fs from 'node:fs';
-import * as path from 'node:path';
-import { CedarDynamoDBPIP, CedarInMemoryPIP } from './pip';
-import { EntityJson } from '@cedar-policy/cedar-wasm';
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import { VerifiedPermissionsAuthZENProxy } from './avp-authzen';
 import { CedarPIPAuthZENProxy } from './base-authzen';
 import { CedarAuthZENProxy } from './cedar-authzen';
+import { CedarDynamoDBPIP, CedarInMemoryPIP } from './pip';
 
 function isEntitiesFilePath(filePath: string): boolean {
   return (

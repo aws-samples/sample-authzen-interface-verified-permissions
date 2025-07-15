@@ -1,10 +1,12 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
 import * as path from 'node:path';
-import { CedarDynamoDBPIP, CedarInMemoryPIP } from '../src/pip';
+
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { EntityJson, TypeAndId } from '@cedar-policy/cedar-wasm';
 import { expect, test, beforeAll, suite } from 'vitest';
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+
+import { CedarDynamoDBPIP, CedarInMemoryPIP } from '../src/pip';
 
 const allIds = new Set([
   'CiRmZDA2MTRkMy1jMzlhLTQ3ODEtYjdiZC04Yjk2ZjVhNTEwMGQSBWxvY2Fs',

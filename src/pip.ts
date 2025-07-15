@@ -1,6 +1,14 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
-import * as cedar from '@cedar-policy/cedar-wasm/nodejs';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+
+import {
+  DynamoDBClient,
+  AttributeValue,
+  ScanCommand,
+} from '@aws-sdk/client-dynamodb';
+import { DynamoDBDocumentClient, BatchGetCommand } from '@aws-sdk/lib-dynamodb';
 import {
   CedarValueJson,
   EntityJson,
@@ -8,14 +16,7 @@ import {
   SchemaJson,
   TypeAndId,
 } from '@cedar-policy/cedar-wasm';
-import {
-  DynamoDBClient,
-  AttributeValue,
-  ScanCommand,
-} from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, BatchGetCommand } from '@aws-sdk/lib-dynamodb';
-import * as fs from 'fs';
-import * as path from 'path';
+import * as cedar from '@cedar-policy/cedar-wasm/nodejs';
 export abstract class CedarPIP {
   private _schema: SchemaJson<string>;
   private _namespace: string;

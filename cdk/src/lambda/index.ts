@@ -1,11 +1,12 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
-import { Context } from 'aws-lambda';
-import { Tracer } from '@aws-lambda-powertools/tracer';
-import { Logger } from '@aws-lambda-powertools/logger';
 import { LambdaInterface } from '@aws-lambda-powertools/commons/types';
+import { Logger } from '@aws-lambda-powertools/logger';
+import { Tracer } from '@aws-lambda-powertools/tracer';
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { VerifiedPermissionsClient } from '@aws-sdk/client-verifiedpermissions';
-import { VerifiedPermissionsAuthZENProxy } from '../../../src/avp-authzen';
+import { Context } from 'aws-lambda';
+
 import {
   AccessEvaluationRequest,
   AccessEvaluationRequestSchema,
@@ -17,8 +18,8 @@ import {
   ResourceSearchRequest,
   SubjectSearchRequest,
 } from '../../../src/authzen';
+import { VerifiedPermissionsAuthZENProxy } from '../../../src/avp-authzen';
 import { CedarDynamoDBPIP } from '../../../src/pip';
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 
 // https://docs.powertools.aws.dev/lambda/typescript/latest/core/tracer/#lambda-handler
 const tracer = new Tracer();

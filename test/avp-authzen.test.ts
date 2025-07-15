@@ -1,11 +1,13 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
+import * as path from 'node:path';
+
 import { VerifiedPermissionsClient } from '@aws-sdk/client-verifiedpermissions';
+import { expect, test, beforeAll, suite } from 'vitest';
+
+import { gatewayDecisions, backendDecisions } from './util';
 import { VerifiedPermissionsAuthZENProxy } from '../src/avp-authzen';
 import { CedarInMemoryPIP } from '../src/pip';
-import { gatewayDecisions, backendDecisions } from './util';
-import * as path from 'node:path';
-import { expect, test, beforeAll, suite } from 'vitest';
 
 suite('Verified Permissions Interop', async () => {
   const POLICY_STORE_ID = process.env['POLICY_STORE_ID'] as string;

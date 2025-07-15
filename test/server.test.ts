@@ -1,11 +1,13 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
-import { Server } from 'http';
+import { randomUUID } from 'node:crypto';
+import { Server } from 'node:http';
 import * as path from 'node:path';
-import { randomUUID } from 'crypto';
-import { backendDecisions, gatewayDecisions } from './util';
-import { expect, test, beforeAll, afterAll, suite } from 'vitest';
+
 import { Express } from 'express';
+import { expect, test, beforeAll, afterAll, suite } from 'vitest';
+
+import { backendDecisions, gatewayDecisions } from './util';
 
 const missingPolicyStoreId = !process.env.POLICY_STORE_ID;
 if (missingPolicyStoreId) {

@@ -1,9 +1,13 @@
-import typescriptEslint from '@typescript-eslint/eslint-plugin';
-import tsParser from '@typescript-eslint/parser';
+// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: MIT-0
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import js from '@eslint/js';
+
 import { FlatCompat } from '@eslint/eslintrc';
+import js from '@eslint/js';
+import typescriptEslint from '@typescript-eslint/eslint-plugin';
+import tsParser from '@typescript-eslint/parser';
+import importPlugin from 'eslint-plugin-import';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -24,6 +28,7 @@ export default [
   {
     plugins: {
       '@typescript-eslint': typescriptEslint,
+      import: importPlugin,
     },
 
     languageOptions: {
@@ -43,6 +48,34 @@ export default [
       ],
 
       '@typescript-eslint/no-unnecessary-type-arguments': 'off',
+      'import/order': [
+        'error',
+        {
+          groups: [
+            'builtin',
+            'external',
+            'internal',
+            ['parent', 'sibling', 'index'],
+          ],
+          pathGroups: [
+            {
+              pattern: 'node:*',
+              group: 'builtin',
+              position: 'before',
+            },
+            {
+              pattern: '@aws-sdk/**',
+              group: 'external',
+              position: 'after',
+            },
+          ],
+          'newlines-between': 'always',
+          alphabetize: {
+            order: 'asc',
+            caseInsensitive: true,
+          },
+        },
+      ],
     },
   },
 ];

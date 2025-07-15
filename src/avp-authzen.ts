@@ -1,6 +1,6 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
-import * as authzen from './authzen';
+import { Logger } from '@aws-lambda-powertools/logger';
 import {
   VerifiedPermissionsClient,
   Decision,
@@ -12,9 +12,10 @@ import {
   BatchIsAuthorizedCommandOutput,
   BatchIsAuthorizedOutputItem,
 } from '@aws-sdk/client-verifiedpermissions';
-import { CedarPIPAuthZENProxy } from './base-authzen';
 import { EntityJson } from '@cedar-policy/cedar-wasm';
-import { Logger } from '@aws-lambda-powertools/logger';
+
+import * as authzen from './authzen';
+import { CedarPIPAuthZENProxy } from './base-authzen';
 
 export class VerifiedPermissionsAuthZENProxy extends CedarPIPAuthZENProxy {
   private client: VerifiedPermissionsClient;

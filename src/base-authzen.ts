@@ -1,7 +1,8 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
-import * as authzen from './authzen';
 import { EntityJson, TypeAndId } from '@cedar-policy/cedar-wasm';
+
+import * as authzen from './authzen';
 import { ICedarPIPProvider, CedarPIP } from './pip';
 
 export abstract class CedarPIPAuthZENProxy

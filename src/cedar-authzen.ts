@@ -1,7 +1,8 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
-import * as authzen from './authzen';
-import * as cedar from '@cedar-policy/cedar-wasm/nodejs';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+
 import {
   AuthorizationAnswer,
   PolicySet,
@@ -12,9 +13,11 @@ import {
   PolicyId,
   Policy,
 } from '@cedar-policy/cedar-wasm';
+import * as cedar from '@cedar-policy/cedar-wasm/nodejs';
+
+import * as authzen from './authzen';
 import { CedarPIPAuthZENProxy } from './base-authzen';
-import * as fs from 'fs';
-import * as path from 'path';
+
 export class CedarAuthZENProxy extends CedarPIPAuthZENProxy {
   private _policies: PolicySet = {};
 

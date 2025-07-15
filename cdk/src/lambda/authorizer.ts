@@ -1,15 +1,15 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
-import {
-  APIGatewayTokenAuthorizerEvent,
-  APIGatewayAuthorizerResult,
-} from 'aws-lambda';
-import { Tracer } from '@aws-lambda-powertools/tracer';
 import { LambdaInterface } from '@aws-lambda-powertools/commons/types';
+import { Tracer } from '@aws-lambda-powertools/tracer';
 import {
   GetSecretValueCommand,
   SecretsManagerClient,
 } from '@aws-sdk/client-secrets-manager';
+import {
+  APIGatewayTokenAuthorizerEvent,
+  APIGatewayAuthorizerResult,
+} from 'aws-lambda';
 
 // https://docs.powertools.aws.dev/lambda/typescript/latest/core/tracer/#lambda-handler
 const tracer = new Tracer();

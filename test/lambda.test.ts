@@ -1,7 +1,9 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
-import { backendDecisions, gatewayDecisions } from './util';
 import { Context } from 'aws-lambda';
+import { expect, test, suite } from 'vitest';
+
+import { backendDecisions, gatewayDecisions } from './util';
 import {
   EvaluationEvent,
   EvaluationsEvent,
@@ -12,7 +14,6 @@ import {
   AccessEvaluationResponse,
   AccessEvaluationsResponse,
 } from '../src/authzen';
-import { expect, test, suite } from 'vitest';
 
 suite('Lambda Function Tests', () => {
   const createMockContext = (): Context => {

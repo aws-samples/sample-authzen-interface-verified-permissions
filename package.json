@@ -1,7 +1,23 @@
 {
-  "name": "authzen-interface-verified-permissions",
+  "name": "sample-authzen-interface-verified-permissions",
   "version": "2.0.0",
+  "description": "Reference implementation for OpenID AuthZEN protocol with Amazon Verified Permissions",
   "license": "MIT-0",
+  "author": "Amazon Web Services",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aws-samples/sample-authzen-interface-verified-permissions.git"
+  },
+  "keywords": [
+    "aws",
+    "authzen",
+    "verified-permissions",
+    "cedar",
+    "authorization"
+  ],
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
     "watch": "tsc -w",
     "test": "cd test && vitest",
@@ -25,6 +41,7 @@
     "constructs": "10.4.2",
     "eslint": "9.30.1",
     "eslint-config-prettier": "10.1.5",
+    "eslint-plugin-import": "2.32.0",
     "eslint-plugin-prettier": "5.5.1",
     "express": "5.1.0",
     "prettier": "3.6.2",

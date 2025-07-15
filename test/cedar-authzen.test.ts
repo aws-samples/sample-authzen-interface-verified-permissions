@@ -1,10 +1,12 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
-import * as cedar from '@cedar-policy/cedar-wasm/nodejs';
-import { DetailedError, EntityJson } from '@cedar-policy/cedar-wasm';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { CedarAuthZENProxy } from '../src/cedar-authzen';
+
+import { DetailedError, EntityJson } from '@cedar-policy/cedar-wasm';
+import * as cedar from '@cedar-policy/cedar-wasm/nodejs';
+import { expect, test, beforeAll, suite } from 'vitest';
+
 import {
   gatewayDecisions,
   backendDecisions,
@@ -12,9 +14,9 @@ import {
   subjectDecisions,
   actionDecisions,
 } from './util';
-import { expect, test, beforeAll, suite } from 'vitest';
-import { CedarInMemoryPIP } from '../src/pip';
 import { ReasonObject } from '../src/authzen';
+import { CedarAuthZENProxy } from '../src/cedar-authzen';
+import { CedarInMemoryPIP } from '../src/pip';
 
 suite('Cedar WASM', async () => {
   test('SDK version: 4.4.0', () => {

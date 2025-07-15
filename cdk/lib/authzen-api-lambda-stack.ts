@@ -1,16 +1,17 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
 import * as cdk from 'aws-cdk-lib';
+import * as apigateway from 'aws-cdk-lib/aws-apigateway';
+import * as acm from 'aws-cdk-lib/aws-certificatemanager';
+import * as iam from 'aws-cdk-lib/aws-iam';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as nodejs from 'aws-cdk-lib/aws-lambda-nodejs';
-import * as iam from 'aws-cdk-lib/aws-iam';
-import * as acm from 'aws-cdk-lib/aws-certificatemanager';
-import * as apigateway from 'aws-cdk-lib/aws-apigateway';
+import * as logs from 'aws-cdk-lib/aws-logs';
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import * as xray from 'aws-cdk-lib/aws-xray';
-import * as logs from 'aws-cdk-lib/aws-logs';
-import { Construct } from 'constructs';
 import { NagSuppressions } from 'cdk-nag';
+import { Construct } from 'constructs';
+
 import {
   AccessEvaluationRequestSchema,
   AccessEvaluationsRequestSchema,

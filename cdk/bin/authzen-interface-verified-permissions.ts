@@ -2,11 +2,13 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
 import 'source-map-support/register';
+import * as path from 'node:path';
+
 import * as cdk from 'aws-cdk-lib';
 import { AwsSolutionsChecks } from 'cdk-nag';
+
 import { AuthZENPDPStack } from '../lib/authzen-api-lambda-stack';
 import { AuthZENPolicyStoreStack } from '../lib/authzen-avp-stack';
-import * as path from 'node:path';
 
 const app = new cdk.App();
 cdk.Aspects.of(app).add(new AwsSolutionsChecks({ verbose: true }));
