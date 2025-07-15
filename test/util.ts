@@ -11,8 +11,6 @@ import rawActionDecisions from './search-app/action-decisions.json';
 import rawResourceDecisions from './search-app/resource-decisions.json';
 // https://github.com/openid/authzen/blob/main/interop/authzen-search-demo/test/subject/results.json
 import rawSubjectDecisions from './search-app/subject-decisions.json';
-import { VerifiedPermissionsClient } from '@aws-sdk/client-verifiedpermissions';
-import { VerifiedPermissionsAuthZENProxy } from '../src/avp-authzen';
 
 type Decisions = {
   evaluation?: {
@@ -34,25 +32,20 @@ type ActionSearchDecisions = {
     expected: authzen.ActionSearchResponse;
   }[];
 };
-type SearchDecisions = {
+type SubjectSearchDecisions = {
   evaluation?: {
-    request: authzen.SubjectSearchRequest | authzen.ResourceSearchRequest;
+    request: authzen.SubjectSearchRequest;
+    expected: authzen.SearchResponse;
+  }[];
+};
+type ResourceSearchDecisions = {
+  evaluation?: {
+    request: authzen.ResourceSearchRequest;
     expected: authzen.SearchResponse;
   }[];
 };
 
 export const actionDecisions = rawActionDecisions as ActionSearchDecisions;
-export const subjectDecisions = rawSubjectDecisions as SearchDecisions;
-export const resourceDecisions = rawResourceDecisions as SearchDecisions;
-
-const POLICY_STORE_ID = process.env['POLICY_STORE_ID'] as string;
-export const getVerifiedPermissionsAuthZENProxy =
-  (): VerifiedPermissionsAuthZENProxy => {
-    const client = new VerifiedPermissionsClient();
-
-    const authzenProxy = new VerifiedPermissionsAuthZENProxy();
-    authzenProxy.setVerifiedPermissionsClient(client);
-    authzenProxy.setPolicyStoreId(POLICY_STORE_ID);
-
-    return authzenProxy;
-  };
+export const subjectDecisions = rawSubjectDecisions as SubjectSearchDecisions;
+export const resourceDecisions =
+  rawResourceDecisions as ResourceSearchDecisions;

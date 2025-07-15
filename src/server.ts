@@ -55,12 +55,12 @@ function createApp(
     const pip = new CedarInMemoryPIP();
     const entitiesJson = fs.readFileSync(ENTITIES_TABLE_NAME, 'utf-8');
     const entities: EntityJson[] = JSON.parse(entitiesJson);
-    pip.setEntities(entities);
-    authzenProxy.setPip(pip);
+    pip.loadEntities(entities);
+    authzenProxy.pip = pip;
   } else {
     const ddbClient = new DynamoDBClient(config);
     const pip = new CedarDynamoDBPIP(ddbClient, ENTITIES_TABLE_NAME);
-    authzenProxy.setPip(pip);
+    authzenProxy.pip = pip;
   }
 
   const app = express();

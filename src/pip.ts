@@ -1,26 +1,35 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
+import * as cedar from '@cedar-policy/cedar-wasm/nodejs';
 import {
   CedarValueJson,
   EntityJson,
   EntityUidJson,
-  Schema,
   SchemaJson,
   TypeAndId,
 } from '@cedar-policy/cedar-wasm';
-import { DynamoDBClient, AttributeValue } from '@aws-sdk/client-dynamodb';
+import {
+  DynamoDBClient,
+  AttributeValue,
+  ScanCommand,
+} from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, BatchGetCommand } from '@aws-sdk/lib-dynamodb';
 import * as fs from 'fs';
 import * as path from 'path';
 export abstract class CedarPIP {
-  private _schema: Schema;
+  private _schema: SchemaJson<string>;
+  private _namespace: string;
 
-  get schema(): Schema {
+  get schema(): SchemaJson<string> {
     return this._schema;
   }
 
-  set schema(value: Schema) {
+  set schema(value: SchemaJson<string>) {
     this._schema = value;
+    const keys = Object.keys(this._schema);
+    if (keys.length == 1) {
+      this._namespace = keys[0];
+    }
   }
 
   protected makeEntityKey(identifier: EntityUidJson): string {
@@ -30,10 +39,30 @@ export abstract class CedarPIP {
     return `${type}::"${id.replace(/"/g, '\\"')}"`;
   }
 
+  async findApplicableActions(
+    subjectType: string,
+    resourceType: string,
+  ): Promise<string[]> {
+    if (!this._schema) {
+      return [];
+    }
+
+    const actions = this._schema[this._namespace].actions;
+
+    return Object.keys(actions).filter((actionName) => {
+      const action = actions[actionName];
+      return (
+        action.appliesTo?.principalTypes?.includes(subjectType) &&
+        action.appliesTo?.resourceTypes?.includes(resourceType)
+      );
+    });
+  }
+
   abstract findEntities(uids: TypeAndId[]): Promise<EntityJson[]>;
+  abstract scanEntities(entityType: string): Promise<string[]>;
 }
 export interface ICedarPIPProvider {
-  setPip(pip: CedarPIP): void;
+  pip: CedarPIP;
 }
 
 export class CedarInMemoryPIP extends CedarPIP {
@@ -46,14 +75,28 @@ export class CedarInMemoryPIP extends CedarPIP {
     );
     const entities: EntityJson[] = JSON.parse(entitiesJson);
 
-    const schemaJson: string = fs.readFileSync(
-      path.join(basePath, 'cedarschema.json'),
-      'utf-8',
-    );
-    const schema: SchemaJson<string> = JSON.parse(schemaJson);
+    let schema: SchemaJson<string>;
+    const cedarSchemaPath = path.join(basePath, 'cedarschema');
+    if (fs.existsSync(cedarSchemaPath)) {
+      const cedarSchema = fs.readFileSync(cedarSchemaPath, 'utf-8');
+      const result = cedar.schemaToJson(cedarSchema);
+      if (result.type === 'success') {
+        schema = result.json;
+      } else {
+        throw new Error(
+          `Schema conversion failed: ${result.errors.map((e) => e.message).join(', ')}`,
+        );
+      }
+    } else {
+      const schemaJson: string = fs.readFileSync(
+        path.join(basePath, 'cedarschema.json'),
+        'utf-8',
+      );
+      schema = JSON.parse(schemaJson);
+    }
 
     const pip = new CedarInMemoryPIP();
-    pip.setEntities(entities);
+    pip.loadEntities(entities);
     pip.schema = schema;
 
     return pip;
@@ -98,7 +141,16 @@ export class CedarInMemoryPIP extends CedarPIP {
     return entities;
   }
 
-  setEntities(entities: EntityJson[]): void {
+  async scanEntities(entityType: string): Promise<string[]> {
+    const uids: string[] = [];
+
+    if (this.entitiesByType[entityType]) {
+      uids.push(...Object.keys(this.entitiesByType[entityType]));
+    }
+    return uids;
+  }
+
+  loadEntities(entities: EntityJson[]): void {
     entities.forEach((entity) => {
       if (!entity.uid) return;
 
@@ -215,6 +267,20 @@ export class CedarDynamoDBPIP extends CedarPIP {
 
     await Promise.all(batchPromises);
     return entityMap;
+  }
+
+  async scanEntities(entityType: string): Promise<string[]> {
+    const command = new ScanCommand({
+      TableName: this.tableName,
+      FilterExpression: 'PK = :entityType',
+      ExpressionAttributeValues: {
+        ':entityType': { S: entityType },
+      },
+      ProjectionExpression: 'SK',
+    });
+
+    const response = await this.client.send(command);
+    return response.Items?.map((item) => item.SK?.S || '') || [];
   }
 
   async findEntities(uids: TypeAndId[]): Promise<EntityJson[]> {

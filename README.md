@@ -1,6 +1,6 @@
 # OpenID AuthZEN Interface for Amazon Verified Permissions
 
-This reference implementation enables interoperability and seamless integration between [OpenID’s AuthZEN protocol](https://openid.net/wg/authzen/specifications/) and [Amazon Verified Permissions](https://aws.amazon.com/verified-permissions/).  It implements the OpenID AuthZEN Interop Payload Spec for both the [Todo (1.0 Draft 02)](https://authzen-interop.net/docs/scenarios/todo-1.1/) and [API Gateway (1.0 Draft 02)](https://authzen-interop.net/docs/scenarios/api-gateway/).
+This reference implementation enables interoperability and seamless integration between [OpenID’s AuthZEN protocol](https://openid.net/wg/authzen/specifications/) and [Amazon Verified Permissions](https://aws.amazon.com/verified-permissions/).  It implements the OpenID AuthZEN Interop Payload Spec for the [Todo (1.0 Draft 02)](https://authzen-interop.net/docs/scenarios/todo-1.1/), [API Gateway (1.0 Draft 02)](https://authzen-interop.net/docs/scenarios/api-gateway/), and [Search (1.0 Draft 03)](https://authzen-interop.net/docs/scenarios/search/)
 
 Read the related AWS Security Blog post: [How to support OpenID AuthZEN requests with Amazon Verified Permissions](https://aws.amazon.com/blogs/security/how-to-support-openid-authzen-requests-with-amazon-verified-permissions/).
 
@@ -8,7 +8,7 @@ Read the related AWS Security Blog post: [How to support OpenID AuthZEN requests
 
 The AuthZEN interface implementation can be found in the `src` directory.
 
-- AuthZEN Zod schemas / TypeScript types (`src/authzen.ts`) based on [Authorization API 1.0 – draft 03](https://openid.github.io/authzen/).
+- AuthZEN Zod schemas / TypeScript types (`src/authzen.ts`) based on [Authorization API 1.0 – draft 04](https://openid.github.io/authzen/).
 - Amazon Verified Permissions implementation (`src/avp-authzen.ts`)
 - Cedar WASM implementation (`src/cedar-authzen.ts`)
 
@@ -57,6 +57,8 @@ Note:  The test data in this project uses the same unique IDs, but modified exam
 | CiRmZDI2MTRkMy1jMzlhLTQ3ODEtYjdiZC04Yjk2ZjVhNTEwMGQSBWxvY2Fs | Nikki Wolf | <nikki_wolf@example.com> |
 | CiRmZDQ2MTRkMy1jMzlhLTQ3ODEtYjdiZC04Yjk2ZjVhNTEwMGQSBWxvY2Fs | Jorge Souza | <jorge_souza@example.com> |
 
+The AuthZEN 1.0 Draft 03 (search) interop test data follows a similar structure in the `cedar/search-app` folder.
+
 ### Local Integration Tests
 
 Most of the `test/*.test.ts` files only require `AuthZENPolicyStoreStack` and some environment variables.
@@ -78,6 +80,15 @@ To run any of these:
 1. Run any of the test files using `npx vitest test/xxx.test.ts` command.
 
 ![Local Integration Tests](docs/AuthZEN-Local.png)
+
+## Express for AuthZEN HTTPS binding
+
+An [Express](https://expressjs.com/) implementation allows for a sample, local web server that either support Amazon Verified Permissions and DynamoDB or local Cedar files.  To enable, when running either `src/server.ts` or testing using `server.test.ts`, set `POLICY_STORE_ID` to a local directory and `ENTITIES_TABLE_NAME` to the full path of a `cedarentities.json` file.
+
+    ```shell
+    export POLICY_STORE_ID=/Users/example/src/github/aws-samples/sample-authzen-interface-verified-permissions/cedar/todo-app
+    export ENTITIES_TABLE_NAME=/Users/example/src/github/aws-samples/sample-authzen-interface-verified-permissions/cedar/todo-app/cedarentities.json
+    ```
 
 ## CDK stack for AuthZEN HTTPS binding
 
@@ -127,21 +138,22 @@ The API Gateway integration tests (`test/apigateway.test.ts`) and full test suit
 1. Run all tests with `npm run test`.
 
     ```shell
-     ✓ cedar-authzen.test.ts (74 tests) 410ms
-     ✓ pip.test.ts (3 tests) 2504ms
-       ✓ Cedar DynamoDB PIP Todo (1.0 Draft 02) > Richard Roe & John Doe  2482ms
-     ✓ avp-authzen.test.ts (68 tests) 6169ms
-       ✓ Verified Permissions Interop > Testing 'CiRmZDA2MTRkMy1jMzlhLTQ3ODEtYjdiZC04Y…' 'GET' '/users/{userId}'  2286ms
-     ✓ lambda.test.ts (68 tests) 10171ms
-       ✓ Lambda Function Tests > Testing evaluation 'CiRmZDA2MTRkMy1jMzlhLTQ3ODEtYjdiZC04Y…' 'GET' '/users/{userId}'  3257ms
-     ✓ server.test.ts (69 tests) 10885ms
-       ✓ Express App Integration Interop Todo (1.0 Draft 02) > Testing 'CiRmZDA2MTRkMy1jMzlhLTQ3ODEtYjdiZC04Y…' 'GET' '/users/{userId}'  3032ms
-     ✓ apigateway.test.ts (72 tests) 26730ms
+     ✓ cedar-authzen.test.ts (275 tests) 2230ms
+     ✓ pip.test.ts (9 tests) 2778ms
+       ✓ Cedar DynamoDB PIP Todo (1.0 Draft 02) > scanEntities identity  2430ms
+     ✓ avp-authzen.test.ts (68 tests) 6262ms
+       ✓ Verified Permissions Interop > Testing 'CiRmZDA2MTRkMy1jMzlhLTQ3ODEtYjdiZC04Y…' 'GET' '/users/{userId}'  2218ms
+     ✓ lambda.test.ts (68 tests) 10373ms
+       ✓ Lambda Function Tests > Testing evaluation 'CiRmZDA2MTRkMy1jMzlhLTQ3ODEtYjdiZC04Y…' 'GET' '/users/{userId}'  3582ms
+     ✓ server.test.ts (69 tests) 11526ms
+       ✓ Express App Integration Interop Todo (1.0 Draft 02) > Testing 'CiRmZDA2MTRkMy1jMzlhLTQ3ODEtYjdiZC04Y…' 'GET' '/users/{userId}'  3506ms
+     ✓ apigateway.test.ts (72 tests) 28530ms
+       ✓ API Gateway Integration Tests > /.well-known/authzen-configuration  3150ms
     
      Test Files  6 passed (6)
-          Tests  354 passed (354)
-       Start at  20:51:34
-       Duration  28.55s (transform 449ms, setup 0ms, collect 5.43s, tests 56.87s, environment 1ms, prepare 1.79s)
+          Tests  561 passed (561)
+       Start at  14:12:33
+       Duration  29.45s (transform 387ms, setup 0ms, collect 2.83s, tests 61.70s, environment 1ms, prepare 1.13s)
     ```
 
 ## AuthZEN interop scenario test

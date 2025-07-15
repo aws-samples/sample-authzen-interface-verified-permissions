@@ -1,22 +1,24 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
+import { VerifiedPermissionsClient } from '@aws-sdk/client-verifiedpermissions';
 import { VerifiedPermissionsAuthZENProxy } from '../src/avp-authzen';
 import { CedarInMemoryPIP } from '../src/pip';
-import {
-  gatewayDecisions,
-  getVerifiedPermissionsAuthZENProxy,
-  backendDecisions,
-} from './util';
+import { gatewayDecisions, backendDecisions } from './util';
 import * as path from 'node:path';
 import { expect, test, beforeAll, suite } from 'vitest';
 
 suite('Verified Permissions Interop', async () => {
+  const POLICY_STORE_ID = process.env['POLICY_STORE_ID'] as string;
   const TODO_BASE_PATH = path.resolve(__dirname, '..', 'cedar', 'todo-app');
   let authzenProxy: VerifiedPermissionsAuthZENProxy;
 
   beforeAll(async () => {
-    authzenProxy = getVerifiedPermissionsAuthZENProxy();
-    authzenProxy.setPip(CedarInMemoryPIP.fromBasePath(TODO_BASE_PATH));
+    const client = new VerifiedPermissionsClient();
+
+    authzenProxy = new VerifiedPermissionsAuthZENProxy();
+    authzenProxy.setVerifiedPermissionsClient(client);
+    authzenProxy.setPolicyStoreId(POLICY_STORE_ID);
+    authzenProxy.pip = CedarInMemoryPIP.fromBasePath(TODO_BASE_PATH);
   });
 
   test.each(gatewayDecisions.evaluation || [])(

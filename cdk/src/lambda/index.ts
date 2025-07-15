@@ -40,7 +40,7 @@ authzenProxy.setVerifiedPermissionsClient(vpClient);
 authzenProxy.setPolicyStoreId(POLICY_STORE_ID);
 if (ENTITIES_TABLE_NAME) {
   const pip = new CedarDynamoDBPIP(ddbClient, ENTITIES_TABLE_NAME);
-  authzenProxy.setPip(pip);
+  authzenProxy.pip = pip;
 }
 
 // validate X-Request-ID header against common trace id formats

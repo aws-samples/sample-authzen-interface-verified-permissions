@@ -7,25 +7,148 @@ import { ICedarPIPProvider, CedarPIP } from './pip';
 export abstract class CedarPIPAuthZENProxy
   implements ICedarPIPProvider, authzen.IAuthZEN
 {
+  // authzen.IAuthZEN
   abstract evaluation(
     request: authzen.AccessEvaluationRequest,
   ): Promise<authzen.AccessEvaluationResponse>;
   abstract evaluations(
     request: authzen.AccessEvaluationsRequest,
   ): Promise<authzen.AccessEvaluationsResponse>;
-  abstract subjectsearch(
+  async subjectsearch(
     request: authzen.SubjectSearchRequest,
-  ): Promise<authzen.SearchResponse>;
-  abstract resourcesearch(
-    request: authzen.ResourceSearchRequest,
-  ): Promise<authzen.SearchResponse>;
-  abstract actionsearch(
-    request: authzen.ActionSearchRequest,
-  ): Promise<authzen.ActionSearchResponse>;
-  private pip: CedarPIP;
+  ): Promise<authzen.SearchResponse> {
+    const response: authzen.SearchResponse = {
+      results: [],
+    };
+    // scan PIP for all entities
+    const ids = await this.pip.scanEntities(request.subject.type);
 
-  setPip(pip: CedarPIP): void {
-    this.pip = pip;
+    // build evaluations request
+    const evaluationsRequest: authzen.AccessEvaluationsRequest = {
+      action: request.action,
+      resource: request.resource,
+      context: request.context,
+      evaluations: [],
+    };
+
+    for (const x of ids) {
+      evaluationsRequest.evaluations.push({
+        subject: {
+          type: request.subject.type,
+          id: x,
+        },
+      });
+    }
+
+    const evaluationsResponse = await this.evaluations(evaluationsRequest);
+
+    // iterate through response and build up result
+    evaluationsResponse.evaluations.forEach((evaluation, index) => {
+      if (evaluation.decision) {
+        response.results.push({
+          type: request.subject.type,
+          id: ids[index],
+        });
+      }
+    });
+
+    return response;
+  }
+  async resourcesearch(
+    request: authzen.ResourceSearchRequest,
+  ): Promise<authzen.SearchResponse> {
+    const response: authzen.SearchResponse = {
+      results: [],
+    };
+
+    // scan PIP for all entities
+    const ids = await this.pip.scanEntities(request.resource.type);
+
+    // build evaluations request
+    const evaluationsRequest: authzen.AccessEvaluationsRequest = {
+      subject: request.subject,
+      action: request.action,
+      context: request.context,
+      evaluations: [],
+    };
+
+    for (const x of ids) {
+      evaluationsRequest.evaluations.push({
+        resource: {
+          type: request.resource.type,
+          id: x,
+        },
+      });
+    }
+
+    const evaluationsResponse = await this.evaluations(evaluationsRequest);
+
+    // iterate through response and build up result
+    evaluationsResponse.evaluations.forEach((evaluation, index) => {
+      if (evaluation.decision) {
+        response.results.push({
+          type: request.resource.type,
+          id: ids[index],
+        });
+      }
+    });
+
+    return response;
+  }
+  async actionsearch(
+    request: authzen.ActionSearchRequest,
+  ): Promise<authzen.ActionSearchResponse> {
+    const response: authzen.ActionSearchResponse = {
+      results: [],
+    };
+
+    // scan Schema for all related actions
+    const ids = await this.pip.findApplicableActions(
+      request.subject.type,
+      request.resource.type,
+    );
+
+    if (ids.length == 0) {
+      return response;
+    }
+
+    // build evaluations request
+    const evaluationsRequest: authzen.AccessEvaluationsRequest = {
+      subject: request.subject,
+      resource: request.resource,
+      context: request.context,
+      evaluations: [],
+    };
+
+    for (const x of ids) {
+      evaluationsRequest.evaluations.push({
+        action: {
+          name: x,
+        },
+      });
+    }
+
+    const evaluationsResponse = await this.evaluations(evaluationsRequest);
+
+    // iterate through response and build up result
+    evaluationsResponse.evaluations.forEach((evaluation, index) => {
+      if (evaluation.decision) {
+        response.results.push({
+          name: ids[index],
+        });
+      }
+    });
+
+    return response;
+  }
+
+  // ICedarPIPProvider
+  private _pip: CedarPIP;
+  get pip(): CedarPIP {
+    return this._pip;
+  }
+  set pip(value: CedarPIP) {
+    this._pip = value;
   }
 
   async determineEntities(entities: authzen.Entity[]): Promise<EntityJson[]> {
@@ -63,25 +186,16 @@ export abstract class CedarPIPAuthZENProxy
   async extractEntities(
     request: authzen.AccessEvaluationsRequest,
   ): Promise<EntityJson[]> {
-    const extracted: EntityJson[] = [];
-    if (request.subject) {
-      extracted.push(...(await this.determineEntities([request.subject])));
-    }
-    if (request.resource) {
-      extracted.push(...(await this.determineEntities([request.resource])));
-    }
+    const allEntities: authzen.Entity[] = [];
+
+    if (request.subject) allEntities.push(request.subject);
+    if (request.resource) allEntities.push(request.resource);
 
     for (const evaluation of request.evaluations) {
-      if (evaluation.subject) {
-        extracted.push(...(await this.determineEntities([evaluation.subject])));
-      }
-      if (evaluation.resource) {
-        extracted.push(
-          ...(await this.determineEntities([evaluation.resource])),
-        );
-      }
+      if (evaluation.subject) allEntities.push(evaluation.subject);
+      if (evaluation.resource) allEntities.push(evaluation.resource);
     }
 
-    return extracted;
+    return this.determineEntities(allEntities);
   }
 }

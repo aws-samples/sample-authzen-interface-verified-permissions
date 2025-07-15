@@ -201,19 +201,4 @@ export class VerifiedPermissionsAuthZENProxy extends CedarPIPAuthZENProxy {
       throw new Error(`Failed to perform AuthZEN evaluations`);
     }
   }
-  async subjectsearch(
-    request: authzen.SubjectSearchRequest,
-  ): Promise<authzen.SearchResponse> {
-    throw new Error('AuthZEN subjectsearch not implemented.');
-  }
-  async resourcesearch(
-    request: authzen.ResourceSearchRequest,
-  ): Promise<authzen.SearchResponse> {
-    throw new Error('AuthZEN resourcesearch not implemented.');
-  }
-  actionsearch(
-    request: authzen.ActionSearchRequest,
-  ): Promise<authzen.ActionSearchResponse> {
-    throw new Error('AuthZEN actionsearch not implemented.');
-  }
 }
