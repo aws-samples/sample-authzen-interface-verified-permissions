@@ -59,24 +59,22 @@ export class CedarAuthZENProxy extends CedarPIPAuthZENProxy {
     response: authzen.AccessEvaluationResponse,
   ): void {
     if (answer.type == 'success') {
+      let reasonText = 'Decision deny by default';
       if (answer.response.decision == 'allow') {
         response.decision = true;
-        if (answer.response.diagnostics.reason) {
-          const reasons: Record<string, string> = {};
-          for (
-            let index = 0;
-            index < answer.response.diagnostics.reason.length;
-            index++
-          ) {
-            reasons[`${index}`] = answer.response.diagnostics.reason[index];
-          }
-          response.context = {
-            reason_admin: reasons,
-          };
+        reasonText =
+          'Decision allow by policy: ' +
+          answer.response.diagnostics.reason.join(', ');
+      } else if (answer.response.decision == 'deny') {
+        if (answer.response.diagnostics.reason.length > 0) {
+          reasonText =
+            'Decision deny by policy: ' +
+            answer.response.diagnostics.reason.join(', ');
         }
-      } else {
-        //
       }
+      response.context = {
+        reason_admin: { en: reasonText },
+      };
     }
   }
 

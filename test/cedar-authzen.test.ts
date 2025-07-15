@@ -127,8 +127,8 @@ suite('Cedar Interop Todo (1.0 Draft 02)', () => {
     });
     expect(response.decision).toBe(true);
     if (response.context?.reason_admin) {
-      expect((response.context as ReasonObject).reason_admin['0']).toBe(
-        'DELETE-todostodoId.cedar',
+      expect((response.context as ReasonObject).reason_admin['en']).toBe(
+        'Decision allow by policy: DELETE-todostodoId.cedar',
       );
     }
   });
@@ -153,8 +153,8 @@ suite('Cedar Interop Todo (1.0 Draft 02)', () => {
     });
     expect(response.decision).toBe(true);
     if (response.context?.reason_admin) {
-      expect((response.context as ReasonObject).reason_admin['0']).toBe(
-        'can_delete_todo.cedar',
+      expect((response.context as ReasonObject).reason_admin['en']).toBe(
+        'Decision allow by policy: can_delete_todo.cedar',
       );
     }
   });

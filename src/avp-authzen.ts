@@ -48,25 +48,27 @@ export class VerifiedPermissionsAuthZENProxy extends CedarPIPAuthZENProxy {
       decision: false,
     };
 
+    let reasonText = 'Decision deny by default';
     if (authResponse.decision == Decision.ALLOW) {
       response.decision = true;
       if (authResponse.determiningPolicies) {
-        const reasons: Record<string, string> = {};
-        for (
-          let index = 0;
-          index < authResponse.determiningPolicies.length;
-          index++
-        ) {
-          // TODO: research how reason_admin should best be used
-          // nosemgrep: no-stringify-keys
-          reasons[`${index}`] = authResponse.determiningPolicies[index]
-            .policyId as string;
-        }
-        response.context = {
-          reason_admin: reasons,
-        };
+        reasonText =
+          'Decision ALLOW by policy: ' +
+          authResponse.determiningPolicies.join(', ');
+      }
+    } else if (authResponse.decision == Decision.DENY) {
+      if (
+        authResponse.determiningPolicies &&
+        authResponse.determiningPolicies.length > 0
+      ) {
+        reasonText =
+          'Decision DENY by policy: ' +
+          authResponse.determiningPolicies.join(', ');
       }
     }
+    response.context = {
+      reason_admin: { en: reasonText },
+    };
 
     return response;
   }
