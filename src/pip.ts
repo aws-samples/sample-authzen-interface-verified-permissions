@@ -37,7 +37,7 @@ export abstract class CedarPIP {
     const { type, id } =
       '__entity' in identifier ? identifier.__entity : identifier;
 
-    return `${type}::"${id.replace(/"/g, '\\"')}"`;
+    return `${type}::"${id.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
   }
 
   async findApplicableActions(
@@ -191,7 +191,7 @@ export class CedarDynamoDBPIP extends CedarPIP {
   static constructDynamoDBItem(entity: EntityJson): DynamoDBItem {
     const uid = entity.uid;
     const { type, id } = '__entity' in uid ? uid.__entity : uid;
-    const key = `${type}::"${id.replace(/"/g, '\\"')}"`;
+    const key = `${type}::"${id.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
 
     const item: DynamoDBItem = {
       PK: { S: type },
