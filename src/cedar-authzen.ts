@@ -59,9 +59,11 @@ export class CedarAuthZENProxy extends CedarPIPAuthZENProxy {
     response: authzen.AccessEvaluationResponse,
   ): void {
     if (answer.type == 'success') {
+      let reasonKey = '403';
       let reasonText = 'Decision deny by default';
       if (answer.response.decision == 'allow') {
         response.decision = true;
+        reasonKey = '200';
         reasonText =
           'Decision allow by policy: ' +
           answer.response.diagnostics.reason.join(', ');
@@ -73,7 +75,7 @@ export class CedarAuthZENProxy extends CedarPIPAuthZENProxy {
         }
       }
       response.context = {
-        reason_admin: { en: reasonText },
+        reason_admin: { [reasonKey]: reasonText },
       };
     }
   }

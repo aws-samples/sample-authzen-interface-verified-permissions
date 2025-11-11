@@ -48,9 +48,11 @@ export class VerifiedPermissionsAuthZENProxy extends CedarPIPAuthZENProxy {
       decision: false,
     };
 
+    let reasonKey = '403';
     let reasonText = 'Decision deny by default';
     if (authResponse.decision == Decision.ALLOW) {
       response.decision = true;
+      reasonKey = '200';
       if (authResponse.determiningPolicies) {
         reasonText =
           'Decision ALLOW by policy: ' +
@@ -67,7 +69,7 @@ export class VerifiedPermissionsAuthZENProxy extends CedarPIPAuthZENProxy {
       }
     }
     response.context = {
-      reason_admin: { en: reasonText },
+      reason_admin: { [reasonKey]: reasonText },
     };
 
     return response;
