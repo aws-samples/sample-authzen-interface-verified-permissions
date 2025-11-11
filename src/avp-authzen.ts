@@ -179,13 +179,13 @@ export class VerifiedPermissionsAuthZENProxy extends CedarPIPAuthZENProxy {
           );
 
           if (
-            request.options?.evaluation_semantics ===
+            request.options?.evaluations_semantic ===
               authzen.DENY_ON_FIRST_DENY &&
             result.decision == Decision.DENY
           ) {
             break;
           } else if (
-            request.options?.evaluation_semantics ===
+            request.options?.evaluations_semantic ===
               authzen.PERMIT_ON_FIRST_PERMIT &&
             result.decision == Decision.ALLOW
           ) {

@@ -138,13 +138,13 @@ export class CedarAuthZENProxy extends CedarPIPAuthZENProxy {
 
         if (answer.type == 'success') {
           if (
-            request.options?.evaluation_semantics ===
+            request.options?.evaluations_semantic ===
               authzen.DENY_ON_FIRST_DENY &&
             answer.response.decision == 'deny'
           ) {
             break;
           } else if (
-            request.options?.evaluation_semantics ===
+            request.options?.evaluations_semantic ===
               authzen.PERMIT_ON_FIRST_PERMIT &&
             answer.response.decision == 'allow'
           ) {

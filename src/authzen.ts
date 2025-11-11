@@ -75,7 +75,7 @@ const EvaluationSemanticsSchema = z.enum([
 const EvaluationOptionsSchema = z.intersection(
   z.record(z.unknown()),
   z.object({
-    evaluation_semantics: EvaluationSemanticsSchema.optional(),
+    evaluations_semantic: EvaluationSemanticsSchema.optional(),
   }),
 );
 
