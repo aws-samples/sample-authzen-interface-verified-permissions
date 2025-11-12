@@ -56,7 +56,7 @@ export class VerifiedPermissionsAuthZENProxy extends CedarPIPAuthZENProxy {
       if (authResponse.determiningPolicies) {
         reasonText =
           'Decision ALLOW by policy: ' +
-          authResponse.determiningPolicies.join(', ');
+          authResponse.determiningPolicies.map((p) => p.policyId).join(', ');
       }
     } else if (authResponse.decision == Decision.DENY) {
       if (
@@ -65,7 +65,7 @@ export class VerifiedPermissionsAuthZENProxy extends CedarPIPAuthZENProxy {
       ) {
         reasonText =
           'Decision DENY by policy: ' +
-          authResponse.determiningPolicies.join(', ');
+          authResponse.determiningPolicies.map((p) => p.policyId).join(', ');
       }
     }
     response.context = {
