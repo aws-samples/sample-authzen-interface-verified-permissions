@@ -1,63 +1,80 @@
 {
   "": {
     "entityTypes": {
-      "route": {},
-      "user": {
-        "shape": {
-          "type": "Record",
-          "attributes": {
-            "email": { "type": "String" },
-            "id": { "type": "String" },
-            "name": { "type": "String" },
-            "picture": { "type": "String" },
-            "roles": { "type": "Set", "element": { "type": "String" } }
-          }
-        }
-      },
       "identity": {
         "shape": {
           "type": "Record",
           "attributes": {
-            "email": { "type": "String" },
-            "id": { "type": "String" },
-            "name": { "type": "String" },
-            "picture": { "type": "String" },
-            "roles": { "type": "Set", "element": { "type": "String" } }
+            "email": {
+              "type": "EntityOrCommon",
+              "name": "String"
+            },
+            "id": {
+              "type": "EntityOrCommon",
+              "name": "String"
+            },
+            "name": {
+              "type": "EntityOrCommon",
+              "name": "String"
+            },
+            "picture": {
+              "type": "EntityOrCommon",
+              "name": "String"
+            },
+            "roles": {
+              "type": "Set",
+              "element": {
+                "type": "EntityOrCommon",
+                "name": "String"
+              }
+            }
           }
         }
       },
+      "route": {},
       "todo": {
         "shape": {
           "type": "Record",
-          "attributes": { "ownerID": { "type": "String" } }
+          "attributes": {
+            "ownerID": {
+              "type": "EntityOrCommon",
+              "name": "String"
+            }
+          }
+        }
+      },
+      "user": {
+        "shape": {
+          "type": "Record",
+          "attributes": {
+            "email": {
+              "type": "EntityOrCommon",
+              "name": "String"
+            },
+            "id": {
+              "type": "EntityOrCommon",
+              "name": "String"
+            },
+            "name": {
+              "type": "EntityOrCommon",
+              "name": "String"
+            },
+            "picture": {
+              "type": "EntityOrCommon",
+              "name": "String"
+            },
+            "roles": {
+              "type": "Set",
+              "element": {
+                "type": "EntityOrCommon",
+                "name": "String"
+              }
+            }
+          }
         }
       }
     },
     "actions": {
-      "can_delete_todo": {
-        "appliesTo": { "resourceTypes": ["todo"], "principalTypes": ["user"] }
-      },
-      "POST": {
-        "appliesTo": {
-          "resourceTypes": ["route"],
-          "principalTypes": ["identity"]
-        }
-      },
-      "can_update_todo": {
-        "appliesTo": { "resourceTypes": ["todo"], "principalTypes": ["user"] }
-      },
-      "can_read_todos": {
-        "appliesTo": { "resourceTypes": ["todo"], "principalTypes": ["user"] }
-      },
-      "PUT": {
-        "appliesTo": {
-          "resourceTypes": ["route"],
-          "principalTypes": ["identity"]
-        }
-      },
-      "can_create_todo": {
-        "appliesTo": { "resourceTypes": ["todo"], "principalTypes": ["user"] }
-      },
       "DELETE": {
         "appliesTo": {
           "resourceTypes": ["route"],
@@ -70,8 +87,47 @@
           "principalTypes": ["identity"]
         }
       },
+      "POST": {
+        "appliesTo": {
+          "resourceTypes": ["route"],
+          "principalTypes": ["identity"]
+        }
+      },
+      "PUT": {
+        "appliesTo": {
+          "resourceTypes": ["route"],
+          "principalTypes": ["identity"]
+        }
+      },
+      "can_create_todo": {
+        "appliesTo": {
+          "resourceTypes": ["todo"],
+          "principalTypes": ["user"]
+        }
+      },
+      "can_delete_todo": {
+        "appliesTo": {
+          "resourceTypes": ["todo"],
+          "principalTypes": ["user"]
+        }
+      },
+      "can_read_todos": {
+        "appliesTo": {
+          "resourceTypes": ["todo"],
+          "principalTypes": ["user"]
+        }
+      },
       "can_read_user": {
-        "appliesTo": { "resourceTypes": ["user"], "principalTypes": ["user"] }
+        "appliesTo": {
+          "resourceTypes": ["user"],
+          "principalTypes": ["user"]
+        }
+      },
+      "can_update_todo": {
+        "appliesTo": {
+          "resourceTypes": ["todo"],
+          "principalTypes": ["user"]
+        }
       }
     }
   }

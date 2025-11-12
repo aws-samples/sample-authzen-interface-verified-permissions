@@ -180,8 +180,15 @@ export class AuthZENPDPStack extends cdk.Stack {
         tsconfig: 'src/tsconfig.json',
         // use banner to fix esbuild bug; see https://github.com/evanw/esbuild/pull/2067
         // nosemgrep: missing-template-string-indicator
-        banner: `import { createRequire } from 'module'; const require = createRequire(import.meta.url);`,
+        banner: `import { createRequire } from 'module'; import { fileURLToPath } from 'url'; import { dirname } from 'path'; const require = createRequire(import.meta.url); const __filename = fileURLToPath(import.meta.url); const __dirname = dirname(__filename);`,
         nodeModules: ['@aws-sdk/client-verifiedpermissions'],
+        commandHooks: {
+          beforeBundling: (): string[] => [],
+          beforeInstall: (): string[] => [],
+          afterBundling: (inputDir: string, outputDir: string): string[] => [
+            `cp ${inputDir}/node_modules/@cedar-policy/cedar-wasm/nodejs/cedar_wasm_bg.wasm ${outputDir}/`,
+          ],
+        },
       },
     });
     createLogGroup(observabilityScope, handler, dataProtectionPolicy);

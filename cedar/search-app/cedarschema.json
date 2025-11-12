@@ -1,37 +1,67 @@
 {
   "": {
     "entityTypes": {
-      "user": {
-        "shape": {
-          "type": "Record",
-          "attributes": {
-            "department": { "type": "String" },
-            "id": { "type": "String" },
-            "role": { "type": "String" }
-          }
-        }
-      },
       "record": {
         "shape": {
           "type": "Record",
           "attributes": {
-            "department": { "type": "String" },
-            "id": { "type": "String" },
-            "owner": { "type": "String" },
-            "title": { "type": "String" }
+            "department": {
+              "type": "EntityOrCommon",
+              "name": "String"
+            },
+            "id": {
+              "type": "EntityOrCommon",
+              "name": "String"
+            },
+            "owner": {
+              "type": "EntityOrCommon",
+              "name": "String"
+            },
+            "title": {
+              "type": "EntityOrCommon",
+              "name": "String"
+            }
+          }
+        }
+      },
+      "user": {
+        "shape": {
+          "type": "Record",
+          "attributes": {
+            "department": {
+              "type": "EntityOrCommon",
+              "name": "String"
+            },
+            "id": {
+              "type": "EntityOrCommon",
+              "name": "String"
+            },
+            "role": {
+              "type": "EntityOrCommon",
+              "name": "String"
+            }
           }
         }
       }
     },
     "actions": {
-      "edit": {
-        "appliesTo": { "resourceTypes": ["record"], "principalTypes": ["user"] }
-      },
       "delete": {
-        "appliesTo": { "resourceTypes": ["record"], "principalTypes": ["user"] }
+        "appliesTo": {
+          "resourceTypes": ["record"],
+          "principalTypes": ["user"]
+        }
+      },
+      "edit": {
+        "appliesTo": {
+          "resourceTypes": ["record"],
+          "principalTypes": ["user"]
+        }
       },
       "view": {
-        "appliesTo": { "resourceTypes": ["record"], "principalTypes": ["user"] }
+        "appliesTo": {
+          "resourceTypes": ["record"],
+          "principalTypes": ["user"]
+        }
       }
     }
   }

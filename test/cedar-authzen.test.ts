@@ -19,8 +19,8 @@ import { CedarAuthZENProxy } from '../src/cedar-authzen';
 import { CedarInMemoryPIP } from '../src/pip';
 
 suite('Cedar WASM', async () => {
-  test('SDK version: 4.4.0', () => {
-    expect(cedar.getCedarVersion()).toBe('4.4.0');
+  test('SDK version: 4.7.0', () => {
+    expect(cedar.getCedarVersion()).toBe('4.7.0');
   });
 });
 
