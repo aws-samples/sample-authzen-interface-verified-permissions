@@ -1,8 +1,10 @@
 name: Test and CDK Synth
+permissions:
+  contents: read
 
 on:
   push:
-    branches: [main]
+    branches: [main, feat/hakanson/search-api]
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -18,8 +20,8 @@ jobs:
       - name: Install Node 20
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -28,6 +30,9 @@ jobs:
         run: |
           npm run lint
           npx vitest test/cedar-authzen.test.ts
+          export POLICY_STORE_ID=cedar/todo-app/
+          export ENTITIES_TABLE_NAME=cedar/todo-app/cedarentities.json
+          npx vitest test/server.test.ts
 
       - name: CDK Synth AuthZENPolicyStoreStack
         run: |
