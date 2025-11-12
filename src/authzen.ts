@@ -125,8 +125,17 @@ const EntityWithOptionalIdSchema = z.object({
   id: z.string().optional(),
 });
 
-const PageSchema = z.object({
+const PageRequestSchema = z.object({
+  // amazonq-ignore-next-line
+  token: z.string(),
+  limit: z.number().nonnegative().optional(),
+  properties: z.record(z.unknown()).optional(),
+});
+const PageResponseSchema = z.object({
   next_token: z.string(),
+  count: z.number().nonnegative().optional(),
+  total: z.number().nonnegative().optional(),
+  properties: z.record(z.unknown()).optional(),
 });
 
 export const SubjectSearchRequestSchema = z.object({
@@ -134,7 +143,7 @@ export const SubjectSearchRequestSchema = z.object({
   resource: EntitySchema,
   action: ActionSchema,
   context: z.record(z.unknown()).optional(),
-  page: PageSchema.optional(),
+  page: PageRequestSchema.optional(),
 });
 
 export const ResourceSearchRequestSchema = z.object({
@@ -142,14 +151,15 @@ export const ResourceSearchRequestSchema = z.object({
   resource: EntityWithOptionalIdSchema,
   action: ActionSchema,
   context: z.record(z.unknown()).optional(),
-  page: PageSchema.optional(),
+  // amazonq-ignore-next-line
+  page: PageRequestSchema.optional(),
 });
 
 export const ActionSearchRequestSchema = z.object({
   subject: EntitySchema,
   resource: EntitySchema,
   context: z.record(z.unknown()).optional(),
-  page: PageSchema.optional(),
+  page: PageRequestSchema.optional(),
 });
 
 export type EntityWithOptionalId = z.infer<typeof EntityWithOptionalIdSchema>;
@@ -157,18 +167,16 @@ export type SubjectSearchRequest = z.infer<typeof SubjectSearchRequestSchema>;
 export type ResourceSearchRequest = z.infer<typeof ResourceSearchRequestSchema>;
 export type ActionSearchRequest = z.infer<typeof ActionSearchRequestSchema>;
 export type SearchResponse = {
+  page?: z.infer<typeof PageResponseSchema>;
+  context?: Record<string, unknown>;
   results: Entity[];
-  page?: {
-    next_token: string;
-  };
 };
 export type ActionSearchResponse = {
+  page?: z.infer<typeof PageResponseSchema>;
+  context?: Record<string, unknown>;
   results: {
     name: string;
   }[];
-  page?: {
-    next_token: string;
-  };
 };
 
 export interface IAuthZEN {

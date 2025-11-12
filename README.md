@@ -8,7 +8,7 @@ Read the related AWS Security Blog post: [How to support OpenID AuthZEN requests
 
 The AuthZEN interface implementation can be found in the `src` directory.
 
-- AuthZEN Zod schemas / TypeScript types (`src/authzen.ts`) based on [Authorization API 1.0 – draft 04](https://openid.github.io/authzen/).
+- AuthZEN Zod schemas / TypeScript types (`src/authzen.ts`) based on [Authorization API 1.0 – draft 05](https://openid.github.io/authzen/).
 - Amazon Verified Permissions implementation (`src/avp-authzen.ts`)
 - Cedar WASM implementation (`src/cedar-authzen.ts`)
 

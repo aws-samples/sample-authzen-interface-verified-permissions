@@ -80,6 +80,7 @@ function createApp(
     try {
       const validatedData = AccessEvaluationRequestSchema.parse(req.body);
       const result = await authzenProxy.evaluation(validatedData);
+      // amazonq-ignore-next-line
       res.json(result);
     } catch (error) {
       console.error('Error processing evaluation:', error);
@@ -93,6 +94,7 @@ function createApp(
     try {
       const validatedData = AccessEvaluationsRequestSchema.parse(req.body);
       const result = await authzenProxy.evaluations(validatedData);
+      // amazonq-ignore-next-line
       res.json(result);
     } catch (error) {
       console.error('Error processing evaluations:', error);
@@ -106,7 +108,12 @@ function createApp(
     try {
       const validatedData = SubjectSearchRequestSchema.parse(req.body);
       const result = await authzenProxy.subjectsearch(validatedData);
-      res.json(result);
+      // It is RECOMMENDED that the page object be the first key in the response
+      res.json({
+        ...(result.page && { page: result.page }),
+        ...(result.context && { context: result.context }),
+        results: result.results,
+      });
     } catch (error) {
       console.error('Error processing subjectsearch:', error);
       res.status(500).json({ error: 'Internal Server Error' });
@@ -121,7 +128,12 @@ function createApp(
       try {
         const validatedData = ResourceSearchRequestSchema.parse(req.body);
         const result = await authzenProxy.resourcesearch(validatedData);
-        res.json(result);
+        // It is RECOMMENDED that the page object be the first key in the response
+        res.json({
+          ...(result.page && { page: result.page }),
+          ...(result.context && { context: result.context }),
+          results: result.results,
+        });
       } catch (error) {
         console.error('Error processing resourcesearch:', error);
         res.status(500).json({ error: 'Internal Server Error' });
@@ -135,7 +147,12 @@ function createApp(
     try {
       const validatedData = ActionSearchRequestSchema.parse(req.body);
       const result = await authzenProxy.actionsearch(validatedData);
-      res.json(result);
+      // It is RECOMMENDED that the page object be the first key in the response
+      res.json({
+        ...(result.page && { page: result.page }),
+        ...(result.context && { context: result.context }),
+        results: result.results,
+      });
     } catch (error) {
       console.error('Error processing actionsearch:', error);
       res.status(500).json({ error: 'Internal Server Error' });
