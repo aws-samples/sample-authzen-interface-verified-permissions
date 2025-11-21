@@ -1,4 +1,4 @@
-// a manager can view a record
+// a manager can view any record
 permit (
   principal is user,
   action == Action::"view",

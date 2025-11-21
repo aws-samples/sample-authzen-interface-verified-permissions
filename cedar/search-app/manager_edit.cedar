@@ -1,4 +1,4 @@
-// a manager can edit a record in their department
+// a manager can edit any record in their department
 permit (
   principal is user,
   action == Action::"edit",
